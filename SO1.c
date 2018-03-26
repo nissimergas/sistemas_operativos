@@ -47,10 +47,16 @@ int main(int argc, char *argv[]){
 	imprimir_proceso(pro);
 	free(pro);*/
 
-FILE* archivo_procesos = fopen(argv[1], "r");
+char * version = argv[1];
+int quantum = atoi(argv[3]);
+int n_queues = atoi(argv[4]);
+printf("%s \n", version);
+printf("%d \n", quantum);
+printf("%d \n", n_queues);
+FILE* archivo_procesos = fopen(argv[2], "r");
 if(!archivo_procesos)
 {
-	perror(argv[1]);
+	perror(argv[2]);
 	return 2;
 }
 //cosas que sacare del archivo
@@ -61,11 +67,14 @@ int tiempo;
 //int c;
 //Array_list* array= crear_array_list();
 array=crear_array_list();
+int id = 1;
+
 while((fscanf(archivo_procesos, "%s %d %d", nombre, &tiempo,&N))==3){
 	printf("Nombre: %s\n",nombre);
 
 	Process* pro;
-	pro=crear_proceso(1, nombre, tiempo,N);
+	pro=crear_proceso(id, nombre, tiempo,N);
+	id ++;
 	int i=1;
 
 	for( i=0;i<N;i++){
@@ -75,7 +84,20 @@ while((fscanf(archivo_procesos, "%s %d %d", nombre, &tiempo,&N))==3){
 	}
 	append_array_list(array, pro);
 }
-aaa();
+// ultima cola es la cola finished
+Queue* *colas = (Queue**) malloc(n_queues * sizeof(Queue*));
+for(int i = 0; i< (n_queues + 1); i++) {
+	colas[i] = crear_queue();
+}
+
+int tiempo = 0;
+while(1){
+	tiempo ++;
+	if(tiempo  == 100){
+		break;
+	}
+}
+//aaa();
 /*
 int i;
 int h=array->ultimo_elemento;
