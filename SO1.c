@@ -90,9 +90,26 @@ for(int i = 0; i< (n_queues + 1); i++) {
 	colas[i] = crear_queue();
 }
 
-int tiempo = 0;
+int time = 0;
+Process* proceso_en_cpu;
 while(1){
-	tiempo ++;
+	if(array->lista[1]->tiempo_inicio==time){
+		Process* p;
+		p=max_heap(array);
+		append(colas[n_queues],p);
+	}
+	int prioridad=n_queues;
+	while(prioridad>0){
+		if(colas[prioridad]->head!=NULL){
+			proceso_en_cpu=pop(colas[prioridad]);
+			break;
+		}
+		prioridad--;
+	}
+	if(prioridad==0){
+		proceso_en_cpu=NULL;
+	}
+	time ++;
 	if(tiempo  == 100){
 		break;
 	}
