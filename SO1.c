@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 typedef struct process {
 	int pid;
@@ -10,6 +11,10 @@ typedef struct process {
 	int tiempo_inicio;
 	int *rafagas;
 	int N;
+	int turnos_en_cpu;
+	int bloqueos;
+	int tiempo_en_cpu;
+	int rafaga_actual;
 }Process;
 
 typedef struct queue {
@@ -49,6 +54,7 @@ int main(int argc, char *argv[]){
 
 char * version = argv[1];
 int quantum = atoi(argv[3]);
+int quantum2 = atoi(argv[3]);
 int n_queues = atoi(argv[4]);
 printf("%s \n", version);
 printf("%d \n", quantum);
@@ -86,33 +92,118 @@ while((fscanf(archivo_procesos, "%s %d %d", nombre, &tiempo,&N))==3){
 }
 // ultima cola es la cola finished
 Queue* *colas = (Queue**) malloc(n_queues * sizeof(Queue*));
-for(int i = 0; i< (n_queues + 1); i++) {
+int i;
+for( i = 0; i< (n_queues + 1); i++) {
 	colas[i] = crear_queue();
 }
 
 int time = 0;
-Process* proceso_en_cpu;
+Process* proceso_en_cpu=NULL;
+int prioridad_proceso;
+int cantidad_de_procesos_creados=array->ultimo_elemento;
+printf("creados: %i \n",cantidad_de_procesos_creados);
 while(1){
-	if(array->lista[1]->tiempo_inicio==time){
-		Process* p;
-		p=max_heap(array);
-		append(colas[n_queues],p);
-	}
-	int prioridad=n_queues;
-	while(prioridad>0){
-		if(colas[prioridad]->head!=NULL){
-			proceso_en_cpu=pop(colas[prioridad]);
-			break;
+
+	//revisar si llegan procesos nuevos
+	if(array->ultimo_elemento>0){
+		while(1){
+				if(array->ultimo_elemento>0){
+					if(array->lista[1]->tiempo_inicio==time){
+						Process* p;
+						p=max_heap(array);
+						p->state=1;//Ready
+						append(colas[n_queues],p);
+					}
+					else{
+						break;
+					}
+			}
+			else{
+				break;
+			}
 		}
-		prioridad--;
 	}
-	if(prioridad==0){
-		proceso_en_cpu=NULL;
+	//meter proceso a la cpu
+	if(proceso_en_cpu==NULL){
+		int prioridad=n_queues;
+		while(prioridad>0 ){
+			if(colas[prioridad]->head!=NULL){
+				proceso_en_cpu=pop(colas[prioridad]);
+				proceso_en_cpu->turnos_en_cpu++;
+				proceso_en_cpu->state=2; //Running
+				prioridad_proceso=prioridad;
+				break;
+			}
+			prioridad--;
+		}
+		if(prioridad==0){
+			proceso_en_cpu=NULL;
+		}
+	}//fin meter proceso a la cpu
+	/*int turnos_en_cpu; si
+	int bloqueos;
+	int tiempo_en_cpu;si
+	int rafaga_actual;si*/
+	else{
+		quantum--;
+		proceso_en_cpu->rafagas[proceso_en_cpu->rafaga_actual]--;
+		proceso_en_cpu->tiempo_en_cpu++;
+		//SI SE COMPLETA RAFAGA DE TIEMPO
+		if(proceso_en_cpu->rafagas[proceso_en_cpu->rafaga_actual]==0){
+			proceso_en_cpu->rafaga_actual++;
+			//si es que no quedan mas rafagas
+			if(proceso_en_cpu->rafaga_actual==proceso_en_cpu->N){
+				append(colas[0],proceso_en_cpu);
+				proceso_en_cpu->state=3;//finished
+				//colas[0]->cantidad_de_procesos=colas[0]->cantidad_de_procesos+1;
+				printf("terminados: %i \n",colas[0]->cantidad_de_procesos);
+				//sleep(1);
+			}
+			//si es que quedan mas rafagas.
+			else{
+				append(colas[prioridad_proceso],proceso_en_cpu);
+			}
+			proceso_en_cpu->state=1;//readdy
+			proceso_en_cpu=NULL;
+			quantum=quantum2;
+		}
+		//SI SE COMPLETA QUANTUM
+		if(quantum==0 && proceso_en_cpu!=NULL){
+			//baja la prioridad del proceso;
+			if(prioridad_proceso>1){
+				prioridad_proceso--;
+			}
+			proceso_en_cpu->bloqueos++;
+			append(colas[prioridad_proceso],proceso_en_cpu);
+			proceso_en_cpu->state=1;
+			proceso_en_cpu=NULL;
+			quantum=quantum2;
+		}
+
 	}
 	time ++;
-	if(tiempo  == 100){
+	/*if(tiempo  == 100){
+		break;
+	}*/
+	//condicion de termino
+	//printf("terminados: %i \n",colas[0]->cantidad_de_procesos);
+	if(colas[0]->cantidad_de_procesos==cantidad_de_procesos_creados){
 		break;
 	}
+}
+int m;
+Process* p=colas[0]->head;
+//imprimir_proceso(p);
+for(m=1;m<cantidad_de_procesos_creados;m++){
+	if(p!=NULL){
+		Process* aux=p->next;
+		imprimir_proceso(p);
+		destruir_proceso(p);
+		p=aux;
+	}
+	//imprimir_proceso(array->lista[i]);
+	//destruir_proceso(array->lista[i]);
+
 }
 //aaa();
 /*
@@ -196,6 +287,10 @@ Process* crear_proceso(int id, char* nombre,int tiempo, int N){ //estado=0,1,2
 	nuevo->tiempo_inicio=tiempo;
 	nuevo->next=NULL;
 	nuevo->N=N;
+	nuevo-> turnos_en_cpu=0;
+	nuevo-> bloqueos=0;
+	nuevo-> tiempo_en_cpu=0;
+	nuevo->rafaga_actual=0;
 	return nuevo;
 }
 void agregar_rafaga(Process* p,int i,int rafaga){
@@ -203,10 +298,22 @@ void agregar_rafaga(Process* p,int i,int rafaga){
 }
 
 void imprimir_proceso(Process* p){
+
 	printf("Nombre: %s\n",p->name);
 	printf("inicio: %i\n",p->tiempo_inicio);
 	printf("id: %i\n",p->pid);
-	printf("estado: %i\n",p->state);
+	if (p->state==1){
+		printf("readdy: %i\n",p->state);
+	}
+	if (p->state==2){
+		printf("running: %i\n",p->state);
+	}
+	if (p->state==3){
+		printf("finished: %i\n",p->state);
+	}
+
+	printf("bloqueos: %i\n",p->bloqueos);
+	printf("turnos en cpu: %i\n",p->turnos_en_cpu);
 	printf("rafagas:");
 	int i;
 	for( i=0;i<p->N;i++){
