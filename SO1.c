@@ -108,8 +108,16 @@ Queue* *colas = (Queue**) malloc((n_queues+1) * sizeof(Queue*));
 int i;
 for( i = 0; i< (n_queues + 1); i++) {
 	colas[i] = crear_queue();
+
 	int q_cal;
-	q_cal=(n_queues-i)*quantum;
+	int v3;
+	v3 =strcmp(version, "v3");
+	if(v3==0){
+		q_cal=(n_queues-i)*quantum;
+	}
+	else{
+			q_cal=quantum;
+	}
 	colas[i]->quantum=q_cal;
 }
 
@@ -118,6 +126,7 @@ Process* proceso_en_cpu=NULL;
 int prioridad_proceso;
 int cantidad_de_procesos_creados=array->ultimo_elemento;
 printf("creados: %i \n",cantidad_de_procesos_creados);
+int quantum_asignado_proceso;
 while(1){
 	regla5(com, colas, s, n_queues, time);
 	//revisar si llegan procesos nuevos
@@ -152,6 +161,7 @@ while(1){
 				proceso_en_cpu->turnos_en_cpu++;
 				proceso_en_cpu->state=2; //Running
 				prioridad_proceso=prioridad;
+				quantum_asignado_proceso=colas[prioridad]->quantum;
 				break;
 			}
 			prioridad--;
@@ -165,7 +175,7 @@ while(1){
 	int tiempo_en_cpu;si
 	int rafaga_actual;si*/
 	if(proceso_en_cpu!=NULL) {
-		quantum--;
+		quantum_asignado_proceso--;
 		proceso_en_cpu->rafagas[proceso_en_cpu->rafaga_actual]--;
 		proceso_en_cpu->tiempo_en_cpu++;
 		//SI SE COMPLETA RAFAGA DE TIEMPO
@@ -188,10 +198,10 @@ while(1){
 				proceso_en_cpu->state=1;//readdy
 			}
 			proceso_en_cpu=NULL;
-			quantum=quantum2;
+			//quantum=quantum2;
 		}
 		//SI SE COMPLETA QUANTUM
-		if(quantum==0 && proceso_en_cpu!=NULL){
+		if(quantum_asignado_proceso==0 && proceso_en_cpu!=NULL){
 			//baja la prioridad del proceso;
 			if(prioridad_proceso>1){
 				prioridad_proceso--;
@@ -200,7 +210,7 @@ while(1){
 			append(colas[prioridad_proceso],proceso_en_cpu);
 			proceso_en_cpu->state=1;
 			proceso_en_cpu=NULL;
-			quantum=quantum2;
+			//quantum=quantum2;
 		}
 
 	}
