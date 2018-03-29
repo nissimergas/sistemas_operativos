@@ -103,7 +103,7 @@ while((fscanf(archivo_procesos, "%s %d %d", nombre, &tiempo,&N))==3){
 	append_array_list(array, pro);
 }
 // ultima cola es la cola finished
-Queue* *colas = (Queue**) malloc(n_queues * sizeof(Queue*));
+Queue* *colas = (Queue**) malloc((n_queues+1) * sizeof(Queue*));
 int i;
 for( i = 0; i< (n_queues + 1); i++) {
 	colas[i] = crear_queue();
@@ -115,7 +115,7 @@ int prioridad_proceso;
 int cantidad_de_procesos_creados=array->ultimo_elemento;
 printf("creados: %i \n",cantidad_de_procesos_creados);
 while(1){
-	regla5(com, colas, s, n_queues, time);
+	//regla5(com, colas, s, n_queues, time);
 	//revisar si llegan procesos nuevos
 	if(array->ultimo_elemento>0){
 		while(1){
@@ -220,13 +220,23 @@ for(m=1;m<cantidad_de_procesos_creados;m++){
 	if(p!=NULL){
 		Process* aux=p->next;
 		imprimir_proceso(p);
-		destruir_proceso(p);
+		//destruir_proceso(p);
 		p=aux;
 	}
+
 	//imprimir_proceso(array->lista[i]);
 	//destruir_proceso(array->lista[i]);
 
 }
+for (i=1;i<cantidad_de_procesos_creados+1;i++){
+	destruir_proceso(array->lista[i]);
+}
+for( i = 0; i< (n_queues + 1); i++) {
+	free(colas[i]);
+}
+free(colas);
+free(array->lista);
+free(array);
 //aaa();
 /*
 int i;
@@ -466,7 +476,8 @@ void regla5(int com, Queue* *colas, int periodo_tiempo, int n_queues, int time){
 	if(com != 0){
 		if(time % periodo_tiempo == 0){
 			if(n_queues > 1){
-				for(int i = n_queues; i > 1; i--){
+				int i;
+				for( i = n_queues; i > 1; i--){
 					extend(colas[i], colas[i-1]);
 				}
 			}

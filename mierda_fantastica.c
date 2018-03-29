@@ -94,7 +94,7 @@ while((fscanf(archivo_procesos, "%s %d %d", nombre, &tiempo,&N))==3){
 	append_array_list(array, pro);
 }
 // ultima cola es la cola finished
-Queue* *colas = (Queue**) malloc(n_queues * sizeof(Queue*));
+Queue* *colas = (Queue**) malloc((n_queues+1) * sizeof(Queue*));
 int i;
 for( i = 0; i< (n_queues + 1); i++) {
 	colas[i] = crear_queue();
