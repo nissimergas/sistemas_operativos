@@ -47,8 +47,6 @@ Process* pop(Queue* q);
 void imprimir_proceso(Process* p);
 void destruir_proceso(Process* p);
 void aaa();
-void extend(Queue* q1, Queue* q2);
-void regla5(int com, Queue* *colas, int periodo_tiempo, int n_queues, int time);
 //////////////////////////////////////////////////////main//////////////////////////////////////////////////////////////////
 Array_list* array;
 int main(int argc, char *argv[]){
@@ -56,15 +54,8 @@ int main(int argc, char *argv[]){
 	pro=crear_proceso(1, "Nissim", 0,2);
 	imprimir_proceso(pro);
 	free(pro);*/
-printf("%d\n",argc );
-int s = 999999999;
-int com;
-if(argc == 6){
-	s = atoi(argv[5]);
-}
+
 char * version = argv[1];
-com =strcmp(version, "v1");
-printf("comparacion %d \n", com );
 int quantum = atoi(argv[3]);
 int quantum2 = atoi(argv[3]);
 int n_queues = atoi(argv[4]);
@@ -115,7 +106,7 @@ int prioridad_proceso;
 int cantidad_de_procesos_creados=array->ultimo_elemento;
 printf("creados: %i \n",cantidad_de_procesos_creados);
 while(1){
-	regla5(com, colas, s, n_queues, time);
+
 	//revisar si llegan procesos nuevos
 	if(array->ultimo_elemento>0){
 		while(1){
@@ -445,31 +436,4 @@ void aaa(){
 	}
 	free(array->lista);
 	free(array);
-}
-
-void extend(Queue* q1, Queue* q2){
-	if(q1->cantidad_de_procesos > 0){
-		q1->tail->next = q2->head;
-		q1->tail = q2->tail;
-	}
-	else {
-		q1->head = q2->head;
-		q1->tail = q2->tail;
-	}
-	q1->cantidad_de_procesos += q2->cantidad_de_procesos;
-	q2->head = NULL;
-	q2->tail = NULL;
-	q2->cantidad_de_procesos = 0;
-}
-
-void regla5(int com, Queue* *colas, int periodo_tiempo, int n_queues, int time){
-	if(com != 0){
-		if(time % periodo_tiempo == 0){
-			if(n_queues > 1){
-				for(int i = n_queues; i > 1; i--){
-					extend(colas[i], colas[i-1]);
-				}
-			}
-		}
-	}
 }
