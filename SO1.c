@@ -24,6 +24,7 @@ typedef struct queue {
 	Process* head;
 	Process* tail;
 	int cantidad_de_procesos;
+	int quantum;
 }Queue;
 
 typedef struct array_list {
@@ -107,6 +108,9 @@ Queue* *colas = (Queue**) malloc((n_queues+1) * sizeof(Queue*));
 int i;
 for( i = 0; i< (n_queues + 1); i++) {
 	colas[i] = crear_queue();
+	int q_cal;
+	q_cal=(n_queues-i)*quantum;
+	colas[i]->quantum=q_cal;
 }
 
 int time = 0;
