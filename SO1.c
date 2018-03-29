@@ -139,6 +139,7 @@ int quantum_asignado_proceso;
 while(KeepRunning){
 	//usleep(9000); descomentar para usar ctrl+c
 	regla5(com, colas, s, n_queues, time);
+
 	//revisar si llegan procesos nuevos
 	if(array->ultimo_elemento>0){
 		while(1){
@@ -158,36 +159,7 @@ while(KeepRunning){
 			}
 		}
 	}
-	//meter proceso a la cpu
-	if(proceso_en_cpu==NULL){
-		int prioridad=n_queues;
-		while(prioridad>0 ){
-			if(colas[prioridad]->head!=NULL){
-				proceso_en_cpu=pop(colas[prioridad]);
-				if(proceso_en_cpu->se_respondio == 0){
-					proceso_en_cpu->se_respondio = 1;
-					proceso_en_cpu->tiempo_en_que_se_respondio = time;
-				}
-				proceso_en_cpu->turnos_en_cpu++;
-				proceso_en_cpu->state=2; //Running
-				prioridad_proceso=prioridad;
-				quantum_asignado_proceso=colas[prioridad]->quantum;
-				break;
-			}
-			prioridad--;
-		}
-		if(prioridad==0){
-			proceso_en_cpu=NULL;
-		}
-	}//fin meter proceso a la cpu
-	/*int turnos_en_cpu; si
-	int bloqueos;
-	int tiempo_en_cpu;si
-	int rafaga_actual;si*/
 	if(proceso_en_cpu!=NULL) {
-		quantum_asignado_proceso--;
-		proceso_en_cpu->rafagas[proceso_en_cpu->rafaga_actual]--;
-		proceso_en_cpu->tiempo_en_cpu++;
 		//SI SE COMPLETA RAFAGA DE TIEMPO
 		if(proceso_en_cpu->rafagas[proceso_en_cpu->rafaga_actual]==0){
 			proceso_en_cpu->rafaga_actual++;
@@ -224,7 +196,38 @@ while(KeepRunning){
 		}
 
 	}
-	time ++;
+	//meter proceso a la cpu
+	if(proceso_en_cpu==NULL){
+		int prioridad=n_queues;
+		while(prioridad>0 ){
+			if(colas[prioridad]->head!=NULL){
+				proceso_en_cpu=pop(colas[prioridad]);
+				if(proceso_en_cpu->se_respondio == 0){
+					proceso_en_cpu->se_respondio = 1;
+					proceso_en_cpu->tiempo_en_que_se_respondio = time;
+				}
+				proceso_en_cpu->turnos_en_cpu++;
+				proceso_en_cpu->state=2; //Running
+				prioridad_proceso=prioridad;
+				quantum_asignado_proceso=colas[prioridad]->quantum;
+				break;
+			}
+			prioridad--;
+		}
+		if(prioridad==0){
+			proceso_en_cpu=NULL;
+		}
+	}//fin meter proceso a la cpu
+	/*int turnos_en_cpu; si
+	int bloqueos;
+	int tiempo_en_cpu;si
+	int rafaga_actual;si*/
+	if(proceso_en_cpu!=NULL) {
+		quantum_asignado_proceso--;
+		proceso_en_cpu->rafagas[proceso_en_cpu->rafaga_actual]--;
+		proceso_en_cpu->tiempo_en_cpu++;
+	}
+
 	/*if(tiempo  == 100){
 		break;
 	}*/
@@ -232,7 +235,9 @@ while(KeepRunning){
 	//printf("terminados: %i \n",colas[0]->cantidad_de_procesos);
 	if(colas[0]->cantidad_de_procesos==cantidad_de_procesos_creados){
 		break;
+
 	}
+	time ++;
 }//fin while
 printf("Procesos terminados: %d \n", colas[0]->cantidad_de_procesos);
 printf("Tiempo total: %d \n", time);
