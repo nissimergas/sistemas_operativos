@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
+
 
 typedef struct process {
 	int pid;
@@ -52,7 +54,13 @@ void extend(Queue* q1, Queue* q2);
 void regla5(int com, Queue* *colas, int periodo_tiempo, int n_queues, int time);
 //////////////////////////////////////////////////////main//////////////////////////////////////////////////////////////////
 Array_list* array;
+static volatile int KeepRunning=1;
+void intHandler(int dummy){
+	KeepRunning=0;
+
+}
 int main(int argc, char *argv[]){
+	signal(SIGINT, intHandler);
 	/*Process* pro;
 	pro=crear_proceso(1, "Nissim", 0,2);
 	imprimir_proceso(pro);
@@ -67,7 +75,7 @@ char * version = argv[1];
 com =strcmp(version, "v1");
 printf("comparacion %d \n", com );
 int quantum = atoi(argv[3]);
-int quantum2 = atoi(argv[3]);
+//int quantum2 = atoi(argv[3]);
 int n_queues = atoi(argv[4]);
 printf("%s \n", version);
 printf("%d \n", quantum);
@@ -127,7 +135,9 @@ int prioridad_proceso;
 int cantidad_de_procesos_creados=array->ultimo_elemento;
 printf("creados: %i \n",cantidad_de_procesos_creados);
 int quantum_asignado_proceso;
-while(1){
+
+while(KeepRunning){
+	//usleep(9000); descomentar para usar ctrl+c
 	regla5(com, colas, s, n_queues, time);
 	//revisar si llegan procesos nuevos
 	if(array->ultimo_elemento>0){
@@ -347,6 +357,7 @@ void agregar_rafaga(Process* p,int i,int rafaga){
 }
 
 void imprimir_proceso(Process* p){
+	if(p->state==3){
 	int turnaround_time =  p->tiempo_termino - p->tiempo_inicio;
 	int response_time = p->tiempo_en_que_se_respondio - p->tiempo_inicio;
 	int waiting_time = turnaround_time - p->tiempo_en_cpu;
@@ -379,7 +390,7 @@ void imprimir_proceso(Process* p){
 	*/
 	printf("\n");
 
-}
+}}
 
 void up_heap(Array_list* array){
 	int k=array->ultimo_elemento;
