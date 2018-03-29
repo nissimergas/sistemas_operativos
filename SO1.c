@@ -144,7 +144,7 @@ while(1){
 	int bloqueos;
 	int tiempo_en_cpu;si
 	int rafaga_actual;si*/
-	else{
+	if(proceso_en_cpu!=NULL) {
 		quantum--;
 		proceso_en_cpu->rafagas[proceso_en_cpu->rafaga_actual]--;
 		proceso_en_cpu->tiempo_en_cpu++;
@@ -163,7 +163,9 @@ while(1){
 			else{
 				append(colas[prioridad_proceso],proceso_en_cpu);
 			}
-			proceso_en_cpu->state=1;//readdy
+			if(proceso_en_cpu->state!=3){
+				proceso_en_cpu->state=1;//readdy
+			}
 			proceso_en_cpu=NULL;
 			quantum=quantum2;
 		}
@@ -190,7 +192,8 @@ while(1){
 	if(colas[0]->cantidad_de_procesos==cantidad_de_procesos_creados){
 		break;
 	}
-}
+}//fin while
+
 int m;
 Process* p=colas[0]->head;
 //imprimir_proceso(p);
