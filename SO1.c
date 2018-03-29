@@ -115,7 +115,7 @@ int prioridad_proceso;
 int cantidad_de_procesos_creados=array->ultimo_elemento;
 printf("creados: %i \n",cantidad_de_procesos_creados);
 while(1){
-	//regla5(com, colas, s, n_queues, time);
+	regla5(com, colas, s, n_queues, time);
 	//revisar si llegan procesos nuevos
 	if(array->ultimo_elemento>0){
 		while(1){
@@ -426,6 +426,7 @@ Process* pop(Queue* q){
 	if(q->head!=NULL){
 		Process* sacado;
 		sacado=q->head;
+		q->cantidad_de_procesos--;
 		if (sacado->next==NULL){
 			q->tail=NULL;
 		}
@@ -458,6 +459,7 @@ void aaa(){
 }
 
 void extend(Queue* q1, Queue* q2){
+	if(q2->head!=NULL){
 	if(q1->cantidad_de_procesos > 0){
 		q1->tail->next = q2->head;
 		q1->tail = q2->tail;
@@ -470,7 +472,7 @@ void extend(Queue* q1, Queue* q2){
 	q2->head = NULL;
 	q2->tail = NULL;
 	q2->cantidad_de_procesos = 0;
-}
+}}
 
 void regla5(int com, Queue* *colas, int periodo_tiempo, int n_queues, int time){
 	if(com != 0){
