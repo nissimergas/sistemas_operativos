@@ -510,7 +510,8 @@ void regla5(int com, Queue* *colas, int periodo_tiempo, int n_queues, int time){
 			if(n_queues > 1){
 				int i;
 				for( i = n_queues; i > 1; i--){
-					extend(colas[i], colas[i-1]);
+					//extend(colas[i], colas[i-1]); //suben 1 prioridad
+					extend(colas[n_queues], colas[i-1]); // suben a la de mayor prioridad
 				}
 			}
 		}
