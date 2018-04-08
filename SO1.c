@@ -120,11 +120,14 @@ for( i = 0; i< (n_queues + 1); i++) {
 	int q_cal;
 	int v3;
 	v3 =strcmp(version, "v3");
+	printf("v3: %i\n",v3);
 	if(v3==0){
-		q_cal=(n_queues-i)*quantum;
+		q_cal=(n_queues+1-i)*quantum;
+		printf("quantum: %i\n",q_cal);
 	}
 	else{
 			q_cal=quantum;
+
 	}
 	colas[i]->quantum=q_cal;
 }
@@ -199,7 +202,8 @@ while(KeepRunning){
 	//meter proceso a la cpu
 	if(proceso_en_cpu==NULL){
 		int prioridad=n_queues;
-		while(prioridad>0 ){
+		int seguir=1;
+		while(prioridad>0 && proceso_en_cpu==NULL){
 			if(colas[prioridad]->head!=NULL){
 				proceso_en_cpu=pop(colas[prioridad]);
 				if(proceso_en_cpu->se_respondio == 0){
@@ -210,6 +214,9 @@ while(KeepRunning){
 				proceso_en_cpu->state=2; //Running
 				prioridad_proceso=prioridad;
 				quantum_asignado_proceso=colas[prioridad]->quantum;
+				printf("prioridad: %i\n",prioridad);
+				printf("q_asignado: %i \n",quantum_asignado_proceso);
+				seguir=0;
 				break;
 			}
 			prioridad--;
@@ -245,7 +252,7 @@ printf("\n");
 int m;
 Process* p=colas[0]->head;
 //imprimir_proceso(p);
-for(m=1;m<cantidad_de_procesos_creados;m++){
+for(m=1;m<=cantidad_de_procesos_creados;m++){
 	if(p!=NULL){
 		Process* aux=p->next;
 		imprimir_proceso(p);

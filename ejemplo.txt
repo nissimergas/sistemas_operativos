@@ -10,7 +10,7 @@ proceso9 110 3 1 2 3
 proceso10 115 2 1 2
 proceso11 21 4 1 2 3 4
 proceso12 111 3 7 2 31
-proceso13 10 3 21 2 31
+proceso13 17 3 21 2 31
 proceso14 45 2 1 2
 proceso15 42 4 1 23 3 4
 proceso16 41 3 7 2 3
