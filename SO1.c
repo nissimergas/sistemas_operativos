@@ -123,7 +123,7 @@ for( i = 0; i< (n_queues + 1); i++) {
 	printf("v3: %i\n",v3);
 	if(v3==0){
 		q_cal=(n_queues+1-i)*quantum;
-		printf("quantum: %i\n",q_cal);
+		//printf("quantum: %i\n",q_cal);
 	}
 	else{
 			q_cal=quantum;
@@ -136,7 +136,7 @@ int time = 0;
 Process* proceso_en_cpu=NULL;
 int prioridad_proceso;
 int cantidad_de_procesos_creados=array->ultimo_elemento;
-printf("creados: %i \n",cantidad_de_procesos_creados);
+//printf("creados: %i \n",cantidad_de_procesos_creados);
 int quantum_asignado_proceso;
 
 while(KeepRunning){
@@ -172,7 +172,7 @@ while(KeepRunning){
 				proceso_en_cpu->state=3;//finished
 				proceso_en_cpu->tiempo_termino = time;
 				//colas[0]->cantidad_de_procesos=colas[0]->cantidad_de_procesos+1;
-				printf("terminados: %i \n",colas[0]->cantidad_de_procesos);
+				//printf("terminados: %i \n",colas[0]->cantidad_de_procesos);
 				//sleep(1);
 			}
 			//si es que quedan mas rafagas.
@@ -199,6 +199,7 @@ while(KeepRunning){
 		}
 
 	}
+
 	//meter proceso a la cpu
 	if(proceso_en_cpu==NULL){
 		int prioridad=n_queues;
@@ -214,8 +215,8 @@ while(KeepRunning){
 				proceso_en_cpu->state=2; //Running
 				prioridad_proceso=prioridad;
 				quantum_asignado_proceso=colas[prioridad]->quantum;
-				printf("prioridad: %i\n",prioridad);
-				printf("q_asignado: %i \n",quantum_asignado_proceso);
+				//printf("prioridad: %i\n",prioridad);
+				//printf("q_asignado: %i \n",quantum_asignado_proceso);
 				seguir=0;
 				break;
 			}
@@ -373,8 +374,8 @@ void imprimir_proceso(Process* p){
 	int turnaround_time =  p->tiempo_termino - p->tiempo_inicio;
 	int response_time = p->tiempo_en_que_se_respondio - p->tiempo_inicio;
 	int waiting_time = turnaround_time - p->tiempo_en_cpu;
-
-	printf("NOMBRE_PROCESO_%i : %s \n",p->pid,p->name);
+	printf("%s: \n",p->name);
+	//printf("NOMBRE_PROCESO_%i : %s \n",p->pid,p->name);
 	printf("Turnos de CPU: %i\n",p->turnos_en_cpu);
 	printf("Bloqueos: %i\n",p->bloqueos);
 	printf("Turnaround time: %i\n",turnaround_time);
@@ -516,9 +517,9 @@ void regla5(int com, Queue* *colas, int periodo_tiempo, int n_queues, int time){
 		if(time % periodo_tiempo == 0){
 			if(n_queues > 1){
 				int i;
-				for( i = n_queues; i > 1; i--){
+				for( i = n_queues-1; i > 0; i--){
 					//extend(colas[i], colas[i-1]); //suben 1 prioridad
-					extend(colas[n_queues], colas[i-1]); // suben a la de mayor prioridad
+					extend(colas[n_queues], colas[i]); // suben a la de mayor prioridad
 				}
 			}
 		}
