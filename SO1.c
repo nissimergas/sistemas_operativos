@@ -141,7 +141,7 @@ int quantum_asignado_proceso;
 
 while(KeepRunning){
 	//usleep(9000); descomentar para usar ctrl+c
-	regla5(com, colas, s, n_queues, time);
+	//regla5(com, colas, s, n_queues, time);
 
 	//revisar si llegan procesos nuevos
 	if(array->ultimo_elemento>0){
@@ -199,6 +199,7 @@ while(KeepRunning){
 		}
 
 	}
+	regla5(com, colas, s, n_queues, time);
 
 	//meter proceso a la cpu
 	if(proceso_en_cpu==NULL){
@@ -215,7 +216,8 @@ while(KeepRunning){
 				proceso_en_cpu->state=2; //Running
 				prioridad_proceso=prioridad;
 				quantum_asignado_proceso=colas[prioridad]->quantum;
-				//printf("prioridad: %i\n",prioridad);
+				printf("%s", proceso_en_cpu->name);
+				printf("prioridad: %i\n",prioridad);
 				//printf("q_asignado: %i \n",quantum_asignado_proceso);
 				seguir=0;
 				break;
