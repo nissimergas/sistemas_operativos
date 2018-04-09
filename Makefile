@@ -1,3 +1,3 @@
 
-program1: SO1.c
-	gcc -o mlfq SO1.c
+program1: seg.c
+	gcc -o mlfq seg.c
