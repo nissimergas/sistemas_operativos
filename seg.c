@@ -20,6 +20,7 @@ typedef struct process {
 	int tiempo_termino;
 	int se_respondio;
 	int tiempo_en_que_se_respondio;
+	int reglaS;
 }Process;
 
 typedef struct queue {
@@ -171,6 +172,7 @@ while(KeepRunning){
 		printf("q_asignado: %i \n",quantum_asignado_proceso);
 		printf("rafaga: %i \n",proceso_en_cpu->rafagas[proceso_en_cpu->rafaga_actual]);
 		if(quantum_asignado_proceso==0 ){
+			printf("TIME:%i HA SIDO BLOQUEADO : %s\n",time,proceso_en_cpu->name);
 			//baja la prioridad del proceso;
 			proceso_en_cpu->bloqueos++;
 			if(proceso_en_cpu->rafagas[proceso_en_cpu->rafaga_actual]==0){
@@ -185,9 +187,10 @@ while(KeepRunning){
 					//sleep(1);
 				}
 				else{
-					if(prioridad_proceso>1 ){
+					if(prioridad_proceso>1  && proceso_en_cpu->reglaS!=1){
 						prioridad_proceso--;
 					}
+					proceso_en_cpu->reglaS=0;
 
 					append(colas[prioridad_proceso],proceso_en_cpu);
 					printf("TIME:%i SE HA INSERTADO : %s EN LISTA :%i\n",time,proceso_en_cpu->name,prioridad_proceso);
@@ -196,9 +199,10 @@ while(KeepRunning){
 			}
 			else{
 				printf("hola");
-				if(prioridad_proceso>1 ){
+				if(prioridad_proceso>1 && proceso_en_cpu->reglaS!=1){
 					prioridad_proceso--;
 				}
+				proceso_en_cpu->reglaS=0;
 
 				append(colas[prioridad_proceso],proceso_en_cpu);
 				printf("TIME:%i SE HA INSERTADO : %s EN LISTA :%i\n",time,proceso_en_cpu->name,prioridad_proceso);
@@ -236,6 +240,9 @@ while(KeepRunning){
 	}
 	if(regla5(com, colas, s, n_queues, time)==1){
 		prioridad_proceso=n_queues;
+		if(proceso_en_cpu!=NULL){
+			proceso_en_cpu->reglaS=1;
+		}
 	}
 
 	//meter proceso a la cpu
@@ -405,6 +412,7 @@ Process* crear_proceso(int id, char* nombre,int tiempo, int N){ //estado=0,1,2
 	nuevo -> tiempo_termino = -1;
 	nuevo -> se_respondio = 0;
 	nuevo -> tiempo_en_que_se_respondio = -1;
+	nuevo->reglaS=0;
 	return nuevo;
 }
 void agregar_rafaga(Process* p,int i,int rafaga){
