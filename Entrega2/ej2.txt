@@ -1,0 +1,61 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <signal.h>
+char* mi_argc(char* line, int len);
+char* mi_argv(char* line, int len);
+int main(int argc, char *argv[]){
+    FILE * fp;
+    char * line = NULL;
+    size_t len = 0;
+    ssize_t read;
+    //int i;
+
+    fp = fopen("ej.txt", "r");
+
+    while ((read = getline(&line, &len, fp)) != -1) {
+        printf("Retrieved line of length %zu :\n", read);
+        printf("%s", line);printf("\n");
+        char* miargc=mi_argc(line, len);
+
+        char* miargv=mi_argv(line, len);
+
+        printf("miargc: %s", miargc);printf("\n");
+        printf("miargv: %s", miargv);printf("\n");
+
+        free(miargc);
+        /*for(i=0;i<len;i++){
+
+
+          printf("%c ", line[i]);
+        }*/
+        printf("\n");
+    }
+
+    fclose(fp);
+
+
+    return 0;
+}
+char* mi_argc(char* line, int len){
+  char *argc = (char*) malloc((len) * sizeof(char));
+  char *ret;
+   ret = strchr(line, ' ');
+   int i;
+   int cc=ret-line;
+   printf("reta: %i ",cc);
+   for (i=0;i<(cc);i++){
+     argc[i]=line[i];
+   }
+  return argc;
+}
+
+
+char* mi_argv(char* line, int len){
+
+   char *arcv_string = strchr(line, ' ');
+
+
+  return arcv_string;
+}
