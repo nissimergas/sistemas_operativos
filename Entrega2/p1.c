@@ -3,6 +3,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 int argc2(char* line, int len);
 char** argv2(char* line, int len);
@@ -10,6 +12,7 @@ char* mi_argc(char* line, int len);
 char* mi_argv(char* line, int len);
 
 int main(int argc, char *argv[]){
+
     FILE * fp;
     char * line = NULL;
     size_t len = 0;
@@ -17,6 +20,7 @@ int main(int argc, char *argv[]){
     //int i;
 		int n = atoi(argv[2]);
     fp = fopen(argv[1], "r");
+		int procesos_corriendo=0;
 
     while (1) {
       //sleep(2);sleep(1);
@@ -29,6 +33,11 @@ int main(int argc, char *argv[]){
 				printf("\n");
 	      char**ar=argv2(line,len);
 				//printf("comando: %s, parametro:%s , %s",ar[0],ar[1],ar[2]);
+				if(procesos_corriendo==n){
+					wait(NULL);
+					procesos_corriendo--;
+				}
+				procesos_corriendo++;
 				int pid=fork();
 				if(pid==0){
 	       printf("\n");
@@ -38,7 +47,7 @@ int main(int argc, char *argv[]){
 
  			  execvp(ar[0],ar);
 			}
-				sleep(7);
+
 
 
 
@@ -139,10 +148,10 @@ char **argv2(char* line, int len){
 			  if (strcmp(s, "")!=0){
 					  argumentos[a]=s;
 
-						printf("par: i%si",  argumentos[a]);
+						/*printf("par: i%si",  argumentos[a]);
 						printf("\n");
 						printf("string restante: %s", line);
-						printf("\n");
+						printf("\n");*/
 						a++;
 				}
 
@@ -158,10 +167,10 @@ char **argv2(char* line, int len){
 			  if (strcmp(s, "")!=0){
 					  argumentos[a]=s;
 
-						printf("par: i%si",  argumentos[a]);
+						/*printf("par: i%si",  argumentos[a]);
 						printf("\n");
 						printf("string restante: %s", line);
-						printf("\n");
+						printf("\n");*/
 						a++;
 				}
 
@@ -194,15 +203,15 @@ char **argv2(char* line, int len){
 	 }
 	 //printf("string restante: i%si", argumentofinal);
   argumentos[i]=argumentofinal;
-	int m=0;
-	printf("________________");
+	//int m=0;
+	/*printf("________________");
 	printf("\n");
 	for (m=0;m<a;m++){
 		printf("argumento: %s",argumentos[m]);
 		printf("\n");
 		printf("________________");
 		printf("\n");
-	}
+	}*/
 
 
   return argumentos;
