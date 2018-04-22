@@ -1,3 +1,3 @@
 
-program1: doer.c
-	gcc -o doer doer.c
+program1: p1.c
+	gcc -o doer p1.c
