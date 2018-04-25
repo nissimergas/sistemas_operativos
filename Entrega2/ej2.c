@@ -11,11 +11,12 @@ char* remove_from_string(char* string, int inicio, int fin, int len );//return s
 char* sub_string(char* string, int inicio, int fin, int len );//retun substring
 int main(int argc, char *argv[]){
   char *ar[3];
-  ar[0]="ls";
+  ar[0]="sdsdfsdfsdfsd";
   ar[1]=NULL;
   ar[2]=NULL;
 
-  execvp("ls",ar);
+  execvp("sdsdfsdfsdfsd",ar);
+  printf("holaadadsfdfsdfdfdsgdgdfdfgfd");
 
 
     return 0;
