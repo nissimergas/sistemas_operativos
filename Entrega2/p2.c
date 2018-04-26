@@ -5,6 +5,8 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/time.h>
+#include <time.h>
 
 static volatile int KeepRunning=1;
 void intHandler(int dummy){
@@ -33,6 +35,9 @@ Proceso* crear_proceso(int ac, char** av);
 void destruir_proceso(Proceso*p);
 #define die(e) do { fprintf(stderr, "%s\n", e); exit(EXIT_FAILURE); } while (0);
 int main(int argc, char *argv[]){
+	 struct timeval  tv1, tv2;
+    gettimeofday(&tv1, NULL);
+		clock_t begin = clock();
 		signal(SIGINT, intHandler);
     FILE * fp;
     char * line = NULL;
@@ -92,7 +97,7 @@ int main(int argc, char *argv[]){
 			h=0;
 			while(h<cantidad_lineas && KeepRunning){
 
-			sleep(1);
+			//sleep(1);
 			char**ar=procesos[h]->argv;
       procesos[h]->intentos++;
 			//printf("comando: %s, parametro:%s , %s",ar[0],ar[1],ar[2]);
@@ -208,9 +213,22 @@ int main(int argc, char *argv[]){
 		}
 
     //int h=0;
-		//estadisticas especificas:
-		printf("           ESTADISTICAS\n");
+		gettimeofday(&tv2, NULL);
+		clock_t end = clock();
+		double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+		printf("           ESTADISTICAS GENERALES\n");
 		printf("__________________________________\n");
+		printf("m: %i\n",cantidad_lineas);
+		printf("n:%i \n",n);
+		printf ("TIEMPO REAL = %f seconds\n",
+		(double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
+    (double) (tv2.tv_sec - tv1.tv_sec));
+		 printf ("TIEMPO TOTAL DE SISTEMA = %f seconds\n",time_spent);
+		 printf("________________________________________________\n");
+		//tiempo real ejecucion
+		//estadisticas especificas:
+		printf("           ESTADISTICAS POR PROCESOS\n");
+		printf("________________________________________________\n");
 		for (h=0;h<cantidad_lineas;h++){
 			close(procesos[h]->link[1]);
 			int nbytes = read(procesos[h]->link[0], procesos[h]->foo, sizeof(procesos[h]->foo));
