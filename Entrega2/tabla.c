@@ -14,6 +14,7 @@ typedef struct fila {
 
 Fila**crear_tabla( int nivel_actual, int* bits_nivel, int total_niveles);
 void destruir_tablas(Fila **tabla,int nivel_actual, int* bits_nivel, int total_niveles);
+void buscar_marco(Fila**tabla);
 int main(){
 
   int bitspornivel[3];
@@ -22,6 +23,7 @@ int main(){
   bitspornivel[2]=4;
   int total_niveles=3;
   Fila** t=crear_tabla( 0, bitspornivel,  total_niveles);
+  buscar_marco(t);
   destruir_tablas( t,0, bitspornivel,  total_niveles);
 return 0;
 }
@@ -35,6 +37,7 @@ Fila**crear_tabla(int nivel_actual, int* bits_nivel, int total_niveles){
       tabla[i]=(Fila*) calloc(1,sizeof(Fila));
       tabla[i]->es_ultimo_nivel=0;
       tabla[i]->validez=0;
+      tabla[i]->marco=55;
       tabla[i]->tabla_apuntada=crear_tabla( nivel_actual+1,bits_nivel, total_niveles );
     }
   }
@@ -43,7 +46,7 @@ Fila**crear_tabla(int nivel_actual, int* bits_nivel, int total_niveles){
       tabla[i]=(Fila*) calloc(1,sizeof(Fila));
       tabla[i]->es_ultimo_nivel=1;
       tabla[i]->validez=0;
-      tabla[i]->marco=-1;
+      tabla[i]->marco=77;
 
     }
   }
@@ -67,4 +70,14 @@ void destruir_tablas(Fila **tabla,int nivel_actual, int* bits_nivel, int total_n
     }
   free(tabla);
 }
+}
+
+void buscar_marco(Fila**tabla){
+  if(tabla[0]->es_ultimo_nivel==1){
+    printf("marco_ultimo_nivel: %i \n",tabla[0]->marco);
+  }
+  else{
+    printf("marco: %i \n",tabla[0]->marco);
+    buscar_marco(tabla[0]->tabla_apuntada);
+  }
 }
