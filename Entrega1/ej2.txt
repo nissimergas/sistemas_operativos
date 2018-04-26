@@ -1,0 +1,6 @@
+proceso1 0 1 1
+proceso2 0 1 1
+proceso3 0 1 1
+proceso4 0 1 1
+proceso5 0 1 1
+proceso6 0 1 1  
