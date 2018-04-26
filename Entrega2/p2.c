@@ -13,6 +13,8 @@ typedef struct proceso {
   int intentos;
   int exit_code;
   int pid;
+	int link[2];
+	char foo[4096];
 
 }Proceso;
 
@@ -24,13 +26,13 @@ char* mi_argc_confin(char* line, int len);
 char* mi_argc_con_comillas(char* line, int len);
 Proceso* crear_proceso(int ac, char** av);
 void destruir_proceso(Proceso*p);
-
+#define die(e) do { fprintf(stderr, "%s\n", e); exit(EXIT_FAILURE); } while (0);
 int main(int argc, char *argv[]){
 
     FILE * fp;
     char * line = NULL;
     size_t len = 0;
-    ssize_t read;
+    ssize_t read2;
     //int i;
 		int n = atoi(argv[2]);
     fp = fopen(argv[1], "r");
@@ -43,7 +45,7 @@ int main(int argc, char *argv[]){
 
 		}
 		fclose(fp);
-		printf("cantidad:%i",cantidad_lineas);
+		//printf("cantidad:%i",cantidad_lineas);
 		Proceso**procesos= (Proceso**) calloc((cantidad_lineas) , sizeof(Proceso*));
 
   	fp = fopen(argv[1], "r");
@@ -52,8 +54,8 @@ int main(int argc, char *argv[]){
       //sleep(2);
 
 
-			read = getline(&line, &len, fp);
-      if (read  != -1){
+			read2 = getline(&line, &len, fp);
+      if (read2  != -1){
 				l++;
 
 
@@ -68,7 +70,7 @@ int main(int argc, char *argv[]){
         char**ar=argv2(line,len);
 
         procesos[l]=crear_proceso(cp, ar);
-				printf("\n");
+				//printf("\n");
 
 
         //free(line);
@@ -78,6 +80,7 @@ int main(int argc, char *argv[]){
     free(line);
 
     fclose(fp);
+
     int status;
 		int h=0;
 		for (h=0;h<cantidad_lineas;h++){ //CORRER POR PRIMERA VEZ EL COMANDO
@@ -98,13 +101,22 @@ int main(int argc, char *argv[]){
 				procesos_corriendo--;
 			}
 			procesos_corriendo++;
+			if (pipe(procesos[h]->link)==-1)
+		    die("pipe");
 			procesos[h]-> pid=fork();
+			if (procesos[h]-> pid == -1)
+		    die("fork");
+
 			if(procesos[h]-> pid==0){
-			 printf("\n");
+			// printf("\n");
 
 		 // ar[1]="-al";
-		 printf("funcion: %s",ar[0]);
+		// printf("funcion: %s",ar[0]);
+		 dup2 (procesos[h]->link[1], STDOUT_FILENO);
+		 close(procesos[h]->link[0]);
+		 close(procesos[h]->link[1]);
 			execvp(ar[0],ar);
+			die("execvp");
 			exit(1);
 		}
 
@@ -138,13 +150,22 @@ int main(int argc, char *argv[]){
           procesos_corriendo--;
         }
         procesos_corriendo++;
-        procesos[h]-> pid=fork();
+        //procesos[h]-> pid=fork();
+				if (pipe(procesos[h]->link)==-1)
+			    die("pipe");
+				procesos[h]-> pid=fork();
+				if (procesos[h]-> pid == -1)
+			    die("fork");
         if(procesos[h]-> pid==0){
-         printf("\n");
+         //printf("\n");
 
          // ar[1]="-al";
-         printf("funcion: %s",ar[1]);
-          execvp(ar[0],ar);
+         //printf("funcion: %s",ar[1]);
+				 dup2 (procesos[h]->link[1], STDOUT_FILENO);
+				close(procesos[h]->link[0]);
+				close(procesos[h]->link[1]);
+				 execvp(ar[0],ar);
+				 die("execvp");
 					exit(1);
         }
       }
@@ -159,8 +180,23 @@ int main(int argc, char *argv[]){
 		}
 
     //int h=0;
+		//estadisticas especificas:
 		for (h=0;h<cantidad_lineas;h++){
+			close(procesos[h]->link[1]);
+			int nbytes = read(procesos[h]->link[0], procesos[h]->foo, sizeof(procesos[h]->foo));
+			//printf("Output(%i, %s):\n (%.*s)\n",procesos[h]->intentos,procesos[h]->argv[0] , nbytes, procesos[h]->foo);
+			printf("funcion: %s \n",procesos[h]->argv[0]);
+			printf("parametros:  ");
+			int mm;
+			for (mm=1;mm<procesos[h]->argc;mm++){
+				printf(" %s ",procesos[h]->argv[mm]);
+			}
+			printf("\n");
+			printf("exit code: %i\n",procesos[h]->status);
+			printf("intentos: %i\n",procesos[h]->intentos);
+			printf("Output:(\n %.*s)\n", nbytes, procesos[h]->foo);
       destruir_proceso(procesos[h]);
+			printf("__________________________________\n");
     }
     free(procesos);
 
@@ -419,8 +455,8 @@ Proceso* crear_proceso(int ac, char** av){
 }
 
 void destruir_proceso(Proceso*p){
-   printf("_________________________________\n");
-    printf("intentos,: %i \n",p->intentos);
+    //printf("_________________________________\n");
+    //printf("intentos,: %i \n",p->intentos);
     char** ar=p->argv;
     int cp=p->argc;
     int b;
