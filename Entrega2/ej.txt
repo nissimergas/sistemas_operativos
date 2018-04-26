@@ -1,5 +1,5 @@
 ls    -al
 echo something
 ps T
-ls ls
+gagas sa 
 date "+DATE:%Y-%m-%d%nTIME:%H:%M:%S"

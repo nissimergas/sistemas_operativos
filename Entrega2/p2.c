@@ -103,8 +103,9 @@ int main(int argc, char *argv[]){
 			 printf("\n");
 
 		 // ar[1]="-al";
-		 printf("funcion: %s",ar[1]);
+		 printf("funcion: %s",ar[0]);
 			execvp(ar[0],ar);
+			exit(1);
 		}
 
 		}
@@ -144,6 +145,7 @@ int main(int argc, char *argv[]){
          // ar[1]="-al";
          printf("funcion: %s",ar[1]);
           execvp(ar[0],ar);
+					exit(1);
         }
       }
 
