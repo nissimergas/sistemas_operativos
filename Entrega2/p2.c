@@ -6,6 +6,11 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+static volatile int KeepRunning=1;
+void intHandler(int dummy){
+	KeepRunning=0;
+
+}
 typedef struct proceso {
 	int argc;
   char** argv;
@@ -28,7 +33,7 @@ Proceso* crear_proceso(int ac, char** av);
 void destruir_proceso(Proceso*p);
 #define die(e) do { fprintf(stderr, "%s\n", e); exit(EXIT_FAILURE); } while (0);
 int main(int argc, char *argv[]){
-
+		signal(SIGINT, intHandler);
     FILE * fp;
     char * line = NULL;
     size_t len = 0;
@@ -83,8 +88,11 @@ int main(int argc, char *argv[]){
 
     int status;
 		int h=0;
-		for (h=0;h<cantidad_lineas;h++){ //CORRER POR PRIMERA VEZ EL COMANDO
-			//sleep(1);
+		//for (h=0;h<cantidad_lineas;h++){ //CORRER POR PRIMERA VEZ EL COMANDO
+			h=0;
+			while(h<cantidad_lineas && KeepRunning){
+
+			sleep(1);
 			char**ar=procesos[h]->argv;
       procesos[h]->intentos++;
 			//printf("comando: %s, parametro:%s , %s",ar[0],ar[1],ar[2]);
@@ -116,10 +124,18 @@ int main(int argc, char *argv[]){
 		 close(procesos[h]->link[0]);
 		 close(procesos[h]->link[1]);
 			execvp(ar[0],ar);
+
+
+			for (h=0;h<cantidad_lineas;h++){
+				destruir_proceso(procesos[h]);
+
+			}
+			free(procesos);
 			die("execvp");
 			exit(1);
+			printf("sdsdsdsdsdsdsd");
 		}
-
+   h++;
 		}
     procesos_corriendo=0;
     for (h=0;h<cantidad_lineas;h++){//ESPERAR POR LOS PROCESOS;
@@ -131,7 +147,11 @@ int main(int argc, char *argv[]){
     }
 
 
-    for (h=0;h<cantidad_lineas;h++){ //CORRER POR segunda VEZ EL COMANDO
+    //for (h=0;h<cantidad_lineas;h++){ //CORRER POR segunda VEZ EL COMANDO
+		//printf("keep: %i ",KeepRunning);
+		h=0;
+		while(h<cantidad_lineas && KeepRunning){
+
       //sleep(1);
       char**ar=procesos[h]->argv;
       if(procesos[h]->status!=0){
@@ -165,10 +185,18 @@ int main(int argc, char *argv[]){
 				close(procesos[h]->link[0]);
 				close(procesos[h]->link[1]);
 				 execvp(ar[0],ar);
-				 die("execvp");
+
+				 for (h=0;h<cantidad_lineas;h++){
+		 			destruir_proceso(procesos[h]);
+
+		 		}
+
+		 		free(procesos);
+				die("execvp");
 					exit(1);
         }
       }
+			h++;
 
     }
 		for (h=0;h<cantidad_lineas;h++){//ESPERAR POR LOS PROCESOS 2vez;
@@ -181,6 +209,8 @@ int main(int argc, char *argv[]){
 
     //int h=0;
 		//estadisticas especificas:
+		printf("           ESTADISTICAS\n");
+		printf("__________________________________\n");
 		for (h=0;h<cantidad_lineas;h++){
 			close(procesos[h]->link[1]);
 			int nbytes = read(procesos[h]->link[0], procesos[h]->foo, sizeof(procesos[h]->foo));
@@ -351,8 +381,9 @@ char **argv2(char* line, int len){
 
 
 //  printf("%i",arc);
-  char**argumentos=(char**) calloc((arc) , sizeof(char*));
-	//argumentos[0]="time";
+  char**argumentos=(char**) calloc((arc+1) , sizeof(char*));
+	argumentos[arc]=NULL;
+
 
 	int a=0;
 	 /* for(i=0;i<arc+1;i++){
