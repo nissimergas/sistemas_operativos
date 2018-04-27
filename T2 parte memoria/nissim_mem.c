@@ -6,8 +6,10 @@
 #include <math.h>
 
 typedef struct fila_tlb {
-	char* entrada;
-	char* salida;
+  int pagina;
+	int  marco;
+  int valido;
+  int ultimo_uso;
 } Fila_tlb;
 
 typedef struct fila {
@@ -19,8 +21,13 @@ typedef struct fila {
 
 int* calcular_optimos(int cantidad_de_niveles);//funciona
 Fila**crear_tabla( int nivel_actual, int* bits_nivel, int total_niveles);
+Fila_tlb**crear_tlb( );
+int buscar_en_tlb(Fila_tlb**tlb,int pagina );//devuelve un -1 en caso de no encontrar, devuelve el marco en caso de encontrar
+int insertar_en_tlb(Fila_tlb**tlb,int pagina , int marco);//no importa el return
+void destruir_tlb(Fila_tlb**tlb);
 void destruir_tablas(Fila **tabla,int nivel_actual, int* bits_nivel, int total_niveles);
 int buscar_marco(Fila**tabla, int* segmentos);
+void insertar_marco(Fila**tabla, int* segmentos, int marco);
 void int2binstr(int num, char* bin);//funciona
 void numeros_nivel(int* arreglo_resultados, int * arreglo_optimo, int numeros_nivel, char* binario);//funciona
 
@@ -75,7 +82,17 @@ int main(int argc, char *argv[]){
   int *arreglo_resultados=calloc(niveles,sizeof(int));
   numeros_nivel( arreglo_resultados, optimo,  niveles,  bin);
   int a=buscar_marco(instancia_tabla, arreglo_resultados);
- //printf("marco: %i ",a);
+  insertar_marco(instancia_tabla, arreglo_resultados,99);
+  a= buscar_marco(instancia_tabla, arreglo_resultados);
+ printf("marco: %i ",a);
+
+ Fila_tlb**tlb=crear_tlb();
+  int f=buscar_en_tlb(tlb,10 );//devuelve un -1 en caso de no encontrar, devuelve el marco en caso de encontrar
+  printf("ff: %i ",f);
+  insertar_en_tlb(tlb, 10 , 5);//no importa el return
+   f=buscar_en_tlb(tlb,10 );//devuelve un -1 en caso de no encontrar, devuelve el marco en caso de encontrar
+  printf("ff: %i ",f);
+
 
 //simulacion
 
@@ -95,6 +112,7 @@ int main(int argc, char *argv[]){
 
 
 //liberar memoria
+  destruir_tlb(tlb);
   destruir_tablas( instancia_tabla,0, optimo,  5);
   free(optimo);
   free(bin);
@@ -309,5 +327,73 @@ int buscar_marco(Fila**tabla, int* segmentos){
   	tabla = tabla[segmentos[i]]->tabla_apuntada;
 
   }
-  return tabla[segmentos[i]]->marco;
+  if(tabla[segmentos[i]]->validez==1){
+    return tabla[segmentos[i]]->marco;
+  }
+  return -1;
 }
+
+void insertar_marco(Fila**tabla, int* segmentos, int nmarco){
+  int i;
+
+  i= 0;
+  while(tabla[0]->es_ultimo_nivel != 1){
+    tabla = tabla[segmentos[i]]->tabla_apuntada;
+
+  }
+   tabla[segmentos[i]]->marco=nmarco;
+   tabla[segmentos[i]]->validez=1;
+  }
+
+  Fila_tlb**crear_tlb(){
+    Fila_tlb** tabla=(Fila_tlb**) calloc(64,sizeof(Fila_tlb*));
+    int i;
+    for(i=0;i<64;i++){
+      tabla[i]=(Fila_tlb*) calloc(1,sizeof(Fila_tlb));
+      tabla[i]->marco=-1;
+      tabla[i]->pagina=-1;
+      tabla[i]->valido=-1;
+      tabla[i]->ultimo_uso=0;
+    }
+    return tabla;
+  }
+  int buscar_en_tlb(Fila_tlb**tlb,int pagina ){
+    int i;
+    for(i=0;i<64;i++){
+      if(tlb[i]->pagina==pagina){
+        if(tlb[i]->valido==1){
+          return tlb[i]->marco;
+        }
+      }
+    }
+    return -1;
+  }
+
+int insertar_en_tlb(Fila_tlb**tlb,int pagina, int marco ){
+  int i;
+  for(i=0;i<64;i++){
+    if(tlb[i]->valido==-1){
+      tlb[i]->valido=1;
+      tlb[i]->pagina=pagina;
+      tlb[i]->marco=marco;
+      return 0;
+    }
+  }
+  int min=100000000;//lo inserto en el lru
+  for(i=0;i<64;i++){
+    if(tlb[i]->ultimo_uso<min){
+      min=i;
+    }
+  }
+  tlb[min]->valido=1;
+  tlb[min]->pagina=pagina;
+  tlb[min]->marco=marco;
+  return 0;
+}
+  void destruir_tlb(Fila_tlb**tlb ){
+    int i;
+    for(i=0;i<64;i++){
+      free(tlb[i]);
+    }
+    free(tlb);
+  }
