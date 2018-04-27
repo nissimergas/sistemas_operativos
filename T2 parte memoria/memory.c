@@ -64,25 +64,7 @@ int main(int argc, char *argv[]){
 
   char * bits_direccionamiento = malloc(20);
 	char * bits_offset  = malloc(8);
-	// int c4;
-	//
-	// int c5;
-	// int c6;
-	// int c7;
-	// int c8;
-	//
-	// int c9;
-	// int c10;
-	// int c11;
-	// int c12;
-	//
-	// int c13;
 
-	//declaracion de otras variables
-	// Tabla* nueva_tabla;
-	// Tabla* tabla_n1;
-
-	//crear TLB
 	Fila_tlb** tlb = (Fila_tlb**) calloc(64,sizeof(Fila_tlb*));
 	//Fila** tlb = (Fila**) calloc(64, sizeof(Fila*));
 
@@ -352,15 +334,10 @@ int buscar_marco(Fila**tabla, int* segmentos){
 
 //cortesia de https://codereview.stackexchange.com/questions/43256/binary-string-to-integer-and-integer-to-binary-string
 void int2binstr(int num, char* bin){
-
-	//char* bin =  malloc(28 * sizeof(char));
-
-
 	int i;
 	for(i = 0; i<28; i++){
 		bin[i] = '0';
 	}
-	int div_entera;
 	int resto;
 	i = 27;
 	while(num != 0){
@@ -376,6 +353,7 @@ void int2binstr(int num, char* bin){
 		i--;
 	}
 }
+printf("binario:%s ",bin);
 
 }
 
@@ -399,6 +377,6 @@ void numeros_nivel(int* arreglo_resultados, int * arreglo_optimo, int numeros_ni
 		int a = strtol(string_acotado, NULL, 2);
 		printf("aaaa :%d   ",a);
 		free(string_acotado);
-		
+
 	}
 }
