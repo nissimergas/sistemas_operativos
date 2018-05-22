@@ -15,6 +15,29 @@ Directorios*bl_direc;
 Conjunto_bloques_bitmap* bloques_bm;
 FILE* fp;
 
+void char2binstr(char num, char* bin){
+	int i;
+	for(i = 0; i<8; i++){
+		bin[i] = 0;
+	}
+
+	int resto;
+	i = 7;
+	while(num != 0){
+		if(i >= 0){
+		resto = num %2;
+		num = (num - resto) / 2;
+		if(resto == 0){
+			bin[i] = 0;
+		}
+		else{
+			bin[i] = 1;
+		}
+		i--;
+	}
+}
+}
+
 void escribir_int_disco( FILE *fp, int pos, int numero){
 unsigned int buffer[1];
   buffer[0]=numero;
@@ -97,16 +120,48 @@ int espacio_libre_bitmap( ){
   return -1;
 }
 
+void escribir_bloques_bitmap(FILE *fp){
+  int i;
+  for(i = 0; i<1024*8; i++){
+      int a0 = Conjunto_bloques_bitmap->bits[i*8]  * pow(2,7);
+      int a1 = Conjunto_bloques_bitmap->bits[i*8+1] * pow(2,6);
+      int a2 = Conjunto_bloques_bitmap->bits[i*8+2] * pow(2,5);
+      int a3 = Conjunto_bloques_bitmap->bits[i*8+3] * pow(2,4);
+      int a4 = Conjunto_bloques_bitmap->bits[i*8+4] * pow(2,3);
+      int a5 = Conjunto_bloques_bitmap->bits[i*8+5] * pow(2,2);
+      int a6 = Conjunto_bloques_bitmap->bits[i*8+6] * pow(2,1);
+      int a7 = Conjunto_bloques_bitmap->bits[i*8+7] * pow(2,0);
+      int a = a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7;
+      //Asumo que tengo hecho el byte_array de 8 bits
+      char char_de_bin = a;
+      escribir_char_disco(fp, 1024 + i, char_de_bin);
+    }
+  }
+}
+
 Conjunto_bloques_bitmap* abrir_bloques_bitmap(FILE *fp){
   Conjunto_bloques_bitmap* bloques_bm=(Conjunto_bloques_bitmap*)calloc(1,sizeof(Conjunto_bloques_bitmap));
   //Asumimos que bloques estan ya con los 9 primeros bits no disponibles para escribir
-  int i=0;
-  for (i=0;i<9;i++){
-    bloques_bm->bits[i] = 1;
+  char * arreglo_chars = (char *) calloc(1024*8, sizeof(char));
+  int i;
+  for(i = 0; i < 1024*8; i++){
+    arreglo_chars[i] = leer_char_disco(fp, i + 1024);
   }
-  for (i=9;i<65536;i++){
-    bloques_bm->bits[i] = 0;
+  char * cada_char = (char *) calloc(1024*8, sizeof(char));
+  for(i = 0; i < 1024*8; i++){
+    //printf("%i\n", arreglo_chars[i] );
+    char2binstr(arreglo_chars[i], cada_char);
+    bloques_bm->bits [8*i] = cada_char[0];
+    bloques_bm->bits [8*i+1] = cada_char[1];
+    bloques_bm->bits [8*i+2] = cada_char[2];
+    bloques_bm->bits [8*i+3] = cada_char[3];
+    bloques_bm->bits [8*i+4] = cada_char[4];
+    bloques_bm->bits [8*i+5] = cada_char[5];
+    bloques_bm->bits [8*i+6] = cada_char[6];
+    bloques_bm->bits [8*i+7] = cada_char[7];
   }
+  free(arreglo_chars);
+  free(cada_char);
   return bloques_bm;
 }
 
@@ -411,12 +466,73 @@ int i;
 
 /** cambia el nombre del archivo */
 int cz_mv(char*orig, char*dest){
-
+  int j;
+  if(cz_exists(dest) == 1){
+      return 1;
+  }
+  int contador_mv;
+  for(contador_mv = 0 ; contador_mv < 64; contador_mv++){
+    if (bl_direc->directorios[contador_mv]->nombre == orig){
+      bl_direc->directorios[contador_mv]->nombre = dest;
+    }
+  }
+  return 0;
 }
+//Asumimos que todo lo que leemos son chars
+
+//Leer sin modificar copy
+int cz_read_cp(czFILE*file_desc, char* buffer, int nbytes){
+  //if(file_desc->size==0 ||file_desc->mode=='w' || file_desc->ultimo_read>=file_desc->size){
+  //  return -1;
+  //}
+int j=0;
+int contador_cp = 0;
+while(nbytes>0){
+  if(contador_cp>=file_desc->size){
+    break;
+  }
+  int bloque_actual= contador_cp-(contador_cp%1024)/1024;
+  int offset=contador_cp%1024;
+  int bloque_en_disco;
+   bloque_en_disco=file_desc->punteros[bloque_actual];
+  if(bloque_actual<252){
+     bloque_en_disco=file_desc->punteros[bloque_actual];
+  }
+  else{
+    int p=file_desc->puntero_dir_indirecto*1024+((bloque_actual-252)*4);
+    bloque_en_disco=leer_int_disco(fp,  p);
+  }
+  int pos=bloque_en_disco*1024+offset;
+
+  buffer[j]=leer_char_disco( fp,  pos);
+  j++;
+  contador_cp++;
+}
+return 0;
+}
+
+
+
+
 
 /**copia */
 int cz_cp(char*orig, char*dest){
+  if(cz_exists(dest) == 1){
+      return 1;
+  }
+  if(strcmp(orig, dest) != 0){
+      return 2;
+  }
+  czFILE* archivo_original = cz_open(orig, 'r');
+  char * buffer_copia = (char *) calloc(archivo_original->size, sizeof(char));
+  cz_read_cp(archivo_original, buffer_copia, archivo_original->size);
 
+  czFILE* nuevo_archivo = cz_open(dest, 'w');
+  cz_write( nuevo_archivo, buffer_copia , archivo_original->size);
+
+  free(buffer_copia);
+
+  return 0;
 }
 
 /** borra */
@@ -425,7 +541,22 @@ int cz_rm(char* filename){
   for(contador_rm = 0 ; contador_rm < 64; contador_rm++){
       if (bl_direc->directorios[contador_rm]->nombre == filename && bl_direc->directorios[contador_rm]->validez == 1){
         printf("Eliminando archivo %s \n", filename);
-        bl_direc->directorios[contador_rm]->bloque_indice;
+        //indice = bl_direc->directorios[contador_rm]->bloque_indice;
+        czFILE* archivo = cz_open(filename, 'r');
+        int i;
+        for(i = 0; i < 252; i++){
+          if(archivo->punteros[i] != -1){
+            bloques_bitmap->bits[archivo->punteros[i]] = 0;
+          }
+        }
+        if(archivo->puntero_dir_indirecto != -1){
+          bloques_bitmap->bits[archivo->puntero_dir_indirecto] = 0;
+          for(i = 0; i < 256; i++){
+            int posicion = leer_int_disco(fp, 1024 * archivo->puntero_dir_indirecto + 4*i);
+            bloques_bitmap->bits[posicion] = 0;
+          }
+        }
+        cz_close(archivo);
       }
   }
   return 0;

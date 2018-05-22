@@ -106,6 +106,10 @@ int cz_cp(char*orig, char*dest);
 /** borra */
 int cz_rm(char* filename);
 
+void char2binstr(char num, char* bin);
+int cz_read_cp(czFILE*file_desc, char* buffer, int nbytes);
+void escribir_bloques_bitmap(FILE *fp);
+
 /** ls */
 void cz_ls();
 Directorios*bl_direc;
