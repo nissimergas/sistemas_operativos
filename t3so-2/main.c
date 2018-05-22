@@ -10,30 +10,19 @@
 int main(int argc, char *argv[])
 {
   // Retorna 0 cuando la ejecucion del programa es correcta
-  //FILE *fp;
-  fp = fopen("j2.bin", "rb+");
-  char s[11]="sdsds";
+  //TODO: preguntar a Nissim si estoy compilando bien , pues puede afectar que voy a abrir
+  //TODO: preguntar a Nissim, me parece que nuestro archivo de test debiera ser un .txt y no un .bin (puede que de lo msimo en realidad)
+  //TODO: preguntar a Nissim, como cambiar el bitmap de acuerdo con el  disco incial que me dan (fp?)
+  //TODO: preguntar a Nissim, Es fp un disco o un archivo segun su mail? Entiendo que debiera ser un leer_int_disco
+  //TODO: preguntar a Nissim como funciona el remove con bloque de direccionamiento indiecto
 
-  bl_direc=abrir_bloque_directorio(fp);
-  cz_exists(s);
-  escribir_int_disco(fp, 0,  0);
-  escribir_int_disco(fp, 4,  0);
-  escribir_int_disco(fp, 8,  0);
-  escribir_int_disco(fp, 0,  0);
-  escribir_int_disco(fp, 10,  0);
-  escribir_int_disco(fp, 9,  0);
-  char str[12]="123456789AB\0";
-  escribir_string_disco( fp,  0,  str,  12);
-  escribir_char_disco( fp,  0,  1);
-  escribir_char_disco( fp,  30,  2);
-  fclose(fp);
-  fp = fopen("j2.bin", "rb+");
-
-char* s2 =leer_string_disco( fp,  0,  12);
-printf("string: %s \n",str);
-free(s2);
-  fclose(fp);
-  //cz_directories("test.bin");
-  cerrar_bloque_directorio(bl_direc);
+  //Esta linea no se puede quitar
+  fp = fopen(argv[1], "rb+");
+  //Estas lineas son las que cambian
+  czFILE * file_desc;
+  file_desc = cz_open("ejemplo.txt", 'w');
+  cz_ls();
+  cz_rm("23456789AB");
+  cz_close(file_desc);
   return 0;
 }

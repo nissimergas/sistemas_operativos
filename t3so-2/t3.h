@@ -29,12 +29,21 @@ struct bloque_directorios
 
 };
 
+//considero los 8 bloques de bitmap como una unidad
+struct conjunto_bloques_bitmap
+{
+  char bits [65536]; //debe tener 65536 bits
+
+};
+
 // Aquí le estoy poniendo un nombre más simple a la lista para no tener que
 //
 /** Estructura de una arraylist */
 typedef struct czfile czFILE;
 typedef struct directorio Directorio;
 typedef struct bloque_directorios Directorios;
+//typedef struct bit_for_bitmap Bit_for_bitmap;
+typedef struct conjunto_bloques_bitmap Conjunto_bloques_bitmap;
 //////////////////////////////////////////////////////////////////////////
 //                             Funciones                                //
 //////////////////////////////////////////////////////////////////////////
@@ -54,6 +63,8 @@ int devolver_bloque_indice(char*filename);
 Directorios* abrir_bloque_directorio(FILE *fp);
 void cerrar_bloque_directorio(Directorios*bloque);
 czFILE* cz_open(char*filename, char mode);
+//Crecaion de bloques bitmap
+Conjunto_bloques_bitmap* abrir_bloques_bitmap(FILE *fp);
 
 /** retorn 1 si filname existe, 0 en caso contrario*/
 int cz_exists2(char*filename,Directorios*bloque);
@@ -81,3 +92,4 @@ int cz_rm(char* filename);
 void cz_ls();
 Directorios*bl_direc;
 FILE *fp;
+Conjunto_bloques_bitmap* bloques_bitmap;

@@ -72,6 +72,20 @@ Directorios* abrir_bloque_directorio(FILE *fp){
   return bloque_dir;
 }
 
+Conjunto_bloques_bitmap* abrir_bloques_bitmap(FILE *fp){
+  Conjunto_bloques_bitmap* bloques_bm=(Conjunto_bloques_bitmap*)calloc(1,sizeof(Conjunto_bloques_bitmap));
+  //Asumimos que bloques estan ya con los 9 primeros bits no disponibles para escribir
+  int i=0;
+  for (i=0;i<9;i++){
+    bloques_bm->bits[i] = 1;
+  }
+  for (i=9;i<65536;i++){
+    bloques_bm->bits[i] = 0;
+  }
+  return bloques_bm;
+}
+
+
 void cerrar_bloque_directorio(Directorios*bloque){
   int i=0;
   for (i=0;i<64;i++){
@@ -142,6 +156,8 @@ int cz_exists(char*filename){
 
 /** abrir archivo, modo:r, w, si se escoge w el nombre no debe estar ocupado */
 czFILE* cz_open(char*filename, char mode){
+bloques_bitmap=abrir_bloques_bitmap(fp);
+bl_direc=abrir_bloque_directorio(fp);
 if(mode=='r'){
   int exist=cz_exists(filename);
   if(exist==1){
@@ -166,10 +182,12 @@ if(mode=='r'){
         pos+=4;
       }
       f_index->puntero_dir_indirecto=leer_int_disco(fp,pos);
+      return f_index;
 
   }
-  return NULL;
-
+  else {
+      return NULL;
+  }
 }
 if(mode=='w'){
   int exist=cz_exists(filename);
@@ -190,12 +208,16 @@ if(mode=='w'){
 
       }
       f_index->puntero_dir_indirecto=-1;
+      return f_index;
+  }
+  else {
+    return NULL;
   }
 }
-return NULL;
 }
 
 /** lee n_bytes desde el archivo y los copia en buffer*/
+/** DOMINGO*/
 int cz_read(czFILE*file_desc, void* buffer, int nbytes){
 
 }
@@ -208,7 +230,12 @@ int cz_write(czFILE*file_desc, void* buffer, int nbytes){
 /** cierra el archivo */
 int cz_close(czFILE* file_desc)
 {
-
+  fclose(fp);
+  cerrar_bloque_directorio(bl_direc);
+  free(file_desc->punteros);
+  free(file_desc);
+  free(bloques_bitmap);
+  return 0;
 }
 
 /** cambia el nombre del archivo */
@@ -223,10 +250,23 @@ int cz_cp(char*orig, char*dest){
 
 /** borra */
 int cz_rm(char* filename){
-
+  int contador_rm;
+  for(contador_rm = 0 ; contador_rm < 64; contador_rm++){
+      if (bl_direc->directorios[contador_rm]->nombre == filename && bl_direc->directorios[contador_rm]->validez == 1){
+        printf("Eliminando archivo %s \n", filename);
+        bl_direc->directorios[contador_rm]->bloque_indice;
+      }
+  }
+  return 0;
 }
 
 /** ls */
 void cz_ls(){
-
+  int contador_ls;
+  printf("LS: \n");
+  for(contador_ls = 0 ; contador_ls < 64; contador_ls++){
+    if(bl_direc->directorios[contador_ls]->validez == 1){
+      printf("%s \n",bl_direc->directorios[contador_ls]->nombre);
+    }
+  }
 }
