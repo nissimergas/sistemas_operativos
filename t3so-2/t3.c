@@ -3,6 +3,7 @@
 // Libreria estandar de C
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 //////////////////////////////////////////////////////////////////////////
 //                             Funciones                                //
@@ -97,7 +98,7 @@ Directorios* abrir_bloque_directorio(FILE *fp){
 }
 int espacio_libre_directorio( ){
   //bloques_bitmap=abrir_bloques_bitmap(fp);
-  bl_direc=abrir_bloque_directorio(fp);
+  //bl_direc=abrir_bloque_directorio(fp);
   int i=0;
   for (i=0;i<64;i++){
     Directorio* d=bl_direc->directorios[i];
@@ -108,7 +109,7 @@ int espacio_libre_directorio( ){
   return -1;
 }
 int espacio_libre_bitmap( ){
-  bloques_bitmap=abrir_bloques_bitmap(fp);
+  //bloques_bitmap=abrir_bloques_bitmap(fp);
   //bl_direc=abrir_bloque_directorio(fp);
   int i=0;
   for (i=0;i<65536;i++){
@@ -123,21 +124,21 @@ int espacio_libre_bitmap( ){
 void escribir_bloques_bitmap(FILE *fp){
   int i;
   for(i = 0; i<1024*8; i++){
-      int a0 = Conjunto_bloques_bitmap->bits[i*8]  * pow(2,7);
-      int a1 = Conjunto_bloques_bitmap->bits[i*8+1] * pow(2,6);
-      int a2 = Conjunto_bloques_bitmap->bits[i*8+2] * pow(2,5);
-      int a3 = Conjunto_bloques_bitmap->bits[i*8+3] * pow(2,4);
-      int a4 = Conjunto_bloques_bitmap->bits[i*8+4] * pow(2,3);
-      int a5 = Conjunto_bloques_bitmap->bits[i*8+5] * pow(2,2);
-      int a6 = Conjunto_bloques_bitmap->bits[i*8+6] * pow(2,1);
-      int a7 = Conjunto_bloques_bitmap->bits[i*8+7] * pow(2,0);
+      int a0 = bloques_bm->bits[i*8]  * pow(2,7);
+      int a1 = bloques_bm->bits[i*8+1] * pow(2,6);
+      int a2 = bloques_bm->bits[i*8+2] * pow(2,5);
+      int a3 = bloques_bm->bits[i*8+3] * pow(2,4);
+      int a4 = bloques_bm->bits[i*8+4] * pow(2,3);
+      int a5 = bloques_bm->bits[i*8+5] * pow(2,2);
+      int a6 = bloques_bm->bits[i*8+6] * pow(2,1);
+      int a7 = bloques_bm->bits[i*8+7] * pow(2,0);
       int a = a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7;
       //Asumo que tengo hecho el byte_array de 8 bits
       char char_de_bin = a;
       escribir_char_disco(fp, 1024 + i, char_de_bin);
     }
   }
-}
+
 
 Conjunto_bloques_bitmap* abrir_bloques_bitmap(FILE *fp){
   Conjunto_bloques_bitmap* bloques_bm=(Conjunto_bloques_bitmap*)calloc(1,sizeof(Conjunto_bloques_bitmap));
@@ -245,8 +246,8 @@ int cz_exists(char*filename){
 
 /** abrir archivo, modo:r, w, si se escoge w el nombre no debe estar ocupado */
 czFILE* cz_open(char*filename, char mode){
-bloques_bitmap=abrir_bloques_bitmap(fp);
-bl_direc=abrir_bloque_directorio(fp);
+//bloques_bitmap=abrir_bloques_bitmap(fp);
+//bl_direc=abrir_bloque_directorio(fp);
 if(mode=='r'){
   int exist=cz_exists(filename);
   if(exist==1){
@@ -304,6 +305,7 @@ if(mode=='w'){
               break;
             }
             n[lll]=filename[lll];
+            lll--;
           }
           bl_direc->directorios[espacio_libre]->nombre=n;
 
@@ -320,11 +322,11 @@ if(mode=='w'){
               f_index->mode='w';
               f_index->leyendo=0;
               int j=0;
-              f_index->punteros=(int*)calloc(252,sizeof(int));
+              f_index->punteros=(int*)calloc(508,sizeof(int));
               for (j=0;j<508;j++){
                 f_index->punteros[j]=-1;
               }
-              f_index->bloques_de_datos=(b_datos**)calloc(252,sizeof(b_datos*));
+              f_index->bloques_de_datos=(b_datos**)calloc(508,sizeof(b_datos*));
               int i=0;
               for (i=0;i<508;i++){
                 f_index->bloques_de_datos[i]=(b_datos*)calloc(1,sizeof(b_datos));
@@ -449,18 +451,18 @@ int i;
     }
     free(file_desc->bloques_de_datos);
   }
-  free(file_desc->bloques_de_datos);
+  free(file_desc);
 
 
 
 
 
     //escribir_char_disco( FILE *fp, int pos, char caracter);
-  fclose(fp);
-  cerrar_bloque_directorio(bl_direc);
-  free(file_desc->punteros);
-  free(file_desc);
-  free(bloques_bitmap);
+  //fclose(fp);
+  //cerrar_bloque_directorio(bl_direc);
+  //free(file_desc->punteros);
+  //free(file_desc);
+  //free(bloques_bitmap);
   return 0;
 }
 

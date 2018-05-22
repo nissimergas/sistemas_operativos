@@ -18,11 +18,16 @@ int main(int argc, char *argv[])
 
   //Esta linea no se puede quitar
   fp = fopen(argv[1], "rb+");
+  bloques_bitmap=abrir_bloques_bitmap(fp);
+  bl_direc=abrir_bloque_directorio(fp);
   //Estas lineas son las que cambian
-  czFILE * file_desc;
-  file_desc = cz_open("ejemplo.txt", 'w');
-  cz_ls();
-  cz_rm("23456789AB");
-  cz_close(file_desc);
+
+  czFILE* archivo = cz_open("hola.txt",'w');
+  cz_close(archivo);
+  //cz_close(archivo);
+  //Esto no cambia
+  fclose(fp);
+  cerrar_bloque_directorio(bl_direc);
+  free(bloques_bitmap);
   return 0;
 }
