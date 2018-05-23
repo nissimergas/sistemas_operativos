@@ -20,14 +20,29 @@ int main(int argc, char *argv[])
   fp = fopen(argv[1], "rb+");
   bloques_bitmap=abrir_bloques_bitmap(fp);
   bl_direc=abrir_bloque_directorio(fp);
-  //Estas lineas son las que cambian
 
-  czFILE* archivo = cz_open("hola.txt",'w');
-  cz_close(archivo);
+  //Estas lineas son las que cambian
+  //cz_rm("ejemplo.txt");
+  //cz_ls();
+  czFILE* archivo = cz_open("ejemplo.txt",'r');
+//  cz_write( archivo, "12345678901234567890\0", 21);
+  char *ch=(char*)calloc(21,1);
+  //czFILE* archivo = cz_open("ejemplo.txt",'r');
+  cz_read( archivo, ch, 21);
+  printf("text: %s\n",ch);
+  free(ch);
+  if(archivo!=NULL){
+    printf("not null\n");
+    cz_close(archivo);
+  }
+
   //cz_close(archivo);
   //Esto no cambia
-  fclose(fp);
+
+  copiar_bloque_directorio_disco(fp, bl_direc , 0);
   cerrar_bloque_directorio(bl_direc);
+  free(bloques_bitmap->bits);
   free(bloques_bitmap);
+  fclose(fp);
   return 0;
 }

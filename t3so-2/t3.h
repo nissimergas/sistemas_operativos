@@ -47,7 +47,7 @@ struct bloque_directorios
 //considero los 8 bloques de bitmap como una unidad
 struct conjunto_bloques_bitmap
 {
-  char bits [65536]; //debe tener 65536 bits
+  char* bits ;//[65536]; //debe tener 65536 bits
 
 };
 
