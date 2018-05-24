@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 //////////////////////////////////////////////////////////////////////////
 //                             Funciones                                //
 //////////////////////////////////////////////////////////////////////////
@@ -126,7 +127,7 @@ Directorios* abrir_bloque_directorio(FILE *fp){
 		int p2= c1<<8 | c2;
 		d->bloque_indice=p2;
     //pos+=4;
-		printf("%i: validez: %i  nombre: %s indice: %i \n",i,d->validez,d->nombre,d->bloque_indice);
+		//printf("%i: validez: %i  nombre: %s indice: %i \n",i,d->validez,d->nombre,d->bloque_indice);
 
     bloque_dir->directorios[i]=d;
   }
@@ -260,20 +261,9 @@ int cz_exists2(char*filename,Directorios*bloque){
   int i=0;
 
   for (i=0;i<64;i++){
-  //  char filename2[11]="00000000000";
-    //int i=0;
-    //while (i<11){
-    //  if(filename[i]=='\0'){
-      //  break;
-      //}
-      //filename2[i]=filename[i];
-      //i++;
-    //
     Directorio* d=bloque->directorios[i];
-		//int s=comparar_string(filename2 , d->nombre,  11);
     int s=strncmp(filename , d->nombre,  11);
     if(s==0 && d->validez==1){
-			//printf("existe");
       return 1;
     }
   }
@@ -282,7 +272,6 @@ int cz_exists2(char*filename,Directorios*bloque){
 
 int devolver_bloque_indice(char*filename){
   int i=0;
-
   Directorios*bloque=bl_direc;
   for (i=0;i<64;i++){
     Directorio* d=bloque->directorios[i];
@@ -294,14 +283,15 @@ int devolver_bloque_indice(char*filename){
   }
   return 0;
 }
+
 /** retorn 1 si filname existe, 0 en caso contrario*/
 int cz_exists(char*filename){
-//  printf("exists:%s \n",bl_direc->directorios[0]->nombre);
   return cz_exists2(filename,bl_direc);
 }
 
 /** abrir archivo, modo:r, w, si se escoge w el nombre no debe estar ocupado */
 czFILE* cz_open(char*filename, char mode){
+//filename[10]='\0';
 //bloques_bitmap=abrir_bloques_bitmap(fp);
 //bl_direc=abrir_bloque_directorio(fp);
 if(mode=='r'){
@@ -375,6 +365,7 @@ if(mode=='r'){
 				//printf("puntero: %i\n ",f_index->punteros[j]);
         pos+=4;
       }
+			//f_index->bm=(int*)calloc(509,sizeof(int));
       f_index->puntero_dir_indirecto=leer_int_disco(fp,pos);
       pos=f_index->puntero_dir_indirecto*1024;
       for (j=252;j<508;j++){
@@ -425,13 +416,15 @@ if(mode=='w'){
 							f_index->b_libre=b_libre;
 							f_index->espacio_libre=espacio_libre;
               int tamao= 0;
-              int creacion=1;
-              int modificacion=1;
+							f_index->bm=(int*)calloc(509,sizeof(int));
+							f_index->ultimo_b=0;
+              //int creacion=1;
+              //int modificacion=1;
               f_index->indice=b_libre;
               f_index->size=tamao;
               f_index->ultimo_read=0;
-              f_index->f_cracion=creacion;
-              f_index->f_modificacion=modificacion;
+              f_index->f_cracion=(int)time(NULL);
+              f_index->f_modificacion=(int)time(NULL);
               f_index->mode='w';
               f_index->leyendo=0;
               int j=0;
@@ -465,6 +458,13 @@ int cz_read(czFILE*file_desc, char* buffer, int nbytes){
   //buffer=(char*)calloc(nbytes,sizeof(char));
 	printf("ultimo read: %i",file_desc->ultimo_read);
   if(file_desc->size==0 ||file_desc->mode=='w' || file_desc->ultimo_read>=file_desc->size){
+		if(file_desc->mode=='w' ){
+			fprintf(stderr,"El archivo esta en modo escritura");
+		}
+		else{
+			fprintf(stderr,"leyendo fuera de limite");
+
+	}
 		printf("size: %i\n",file_desc->size);
 		printf("chao");
     return -1;
@@ -476,7 +476,8 @@ int cz_read(czFILE*file_desc, char* buffer, int nbytes){
 int j=0;
 while(nbytes>0){
   if(file_desc->leyendo>=file_desc->size){
-    break;
+		fprintf(stderr,"leyendo fuera de limite");
+    return j;
   }
   int bloque_actual= (file_desc->leyendo-(file_desc->leyendo%1024))/1024;
 
@@ -506,15 +507,20 @@ while(nbytes>0){
   file_desc->leyendo++;
 	nbytes--;
 }
-printf("leyendo: %i ..",file_desc->leyendo);
-return 0;
+//printf("leyendo: %i ..",file_desc->leyendo);
+return j;
 }
 
 /** escribe en el archivo lo que hay en buffer (nbytes) */
 int cz_write(czFILE*file_desc, char* buffer, int nbytes){
+	if(file_desc->mode=='r'){
+		fprintf(stderr,"El archivo esta en modo lectura");
+		return -1;
+	}
+	file_desc->f_modificacion=(int)time(NULL);
   int j=0;
   while(nbytes>0){
-		printf("nb: %i\n",nbytes);
+		//printf("nb: %i\n",nbytes);
     int bloque_a_escribir=(file_desc->size-(file_desc->size%1024))/1024;
     int offset=file_desc->size%1024;
     if(offset==0){
@@ -522,30 +528,36 @@ int cz_write(czFILE*file_desc, char* buffer, int nbytes){
 
 			printf("espaciol: %i\n",espacio_libre);
       if (espacio_libre==-1){
+				fprintf(stderr,"No queda espacio");
         return j;//error espacio
       }
       else{
+				file_desc->bm[file_desc->ultimo_b]=espacio_libre;
+				file_desc->ultimo_b++;
 				bloques_bm->bits[espacio_libre]=1;
         if(bloque_a_escribir==252){
           int espacio_libre2=espacio_libre_bitmap();
 
           if(espacio_libre2==-1){
+						fprintf(stderr,"No queda espacio");
             return j;//error espacio
           }
           else{
-bloques_bm->bits[espacio_libre2]=1;
+						bloques_bm->bits[espacio_libre2]=1;
+						file_desc->bm[file_desc->ultimo_b]=espacio_libre2;
+						file_desc->ultimo_b++;
             file_desc->puntero_dir_indirecto=espacio_libre2;
           }
         }
-				printf("holsa\n");
+				//printf("holsa\n");
 				bloques_bm->bits[espacio_libre]=1;
       //  bloques_bm->bits[espacio_libre]=1;
-				printf("hola\n");
+				//printf("hola\n");
         file_desc->punteros[bloque_a_escribir]=espacio_libre;
       }
 
     }
-		printf("aca\n");
+		//printf("aca\n");
     file_desc->bloques_de_datos[bloque_a_escribir]->datos[offset]=buffer[j];
     file_desc->size++;
     j++;
@@ -557,16 +569,16 @@ return j;
 
 /** cierra el archivo */
 int cz_close(czFILE* file_desc){
-	printf("closing\n");
+	//printf("closing\n");
   if(file_desc->mode=='w'){
 		bloques_bm->bits[file_desc->b_libre]=1;
 		  bl_direc->directorios[file_desc->espacio_libre]->validez=1;
 		//free(bl_direc->directorios[file_desc->espacio_libre]->nombre);
 		bl_direc->directorios[file_desc->espacio_libre]->nombre=file_desc->nombre;
 		bl_direc->directorios[file_desc->espacio_libre]->bloque_indice=file_desc->indice;
-		printf("indice::::%i\n",file_desc->indice);
+		//printf("indice::::%i\n",file_desc->indice);
     int pos=file_desc->indice*1024;
-		printf("pos: %i \n",pos);
+		//printf("pos: %i \n",pos);
     escribir_int_disco( fp,  pos, file_desc->size);
     pos+=4;
     escribir_int_disco( fp,  pos, file_desc->f_cracion);
@@ -593,6 +605,7 @@ int cz_close(czFILE* file_desc){
       escribir_int_disco( fp,  pos, file_desc->punteros[i]);
       pos+=4;
     }
+		free(file_desc->bm);
   }
 int i;
   free(file_desc->punteros);

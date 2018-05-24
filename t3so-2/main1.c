@@ -9,30 +9,15 @@
 //Directorios*bl_direc;
 int main(int argc, char *argv[])
 {
+
   fp = fopen(argv[1], "rb+");
   bloques_bm=abrir_bloques_bitmap(fp);
+
   bl_direc=abrir_bloque_directorio(fp);
 
-  char *ch=(char*)calloc(2000,1);
-  int i;
-  for (i=0;i<100;i++){
-    //ch[i]='a';
-  }
-  czFILE* archivo = cz_open("p4.txt",'r');
-  if (archivo!=NULL){
 
-    cz_read( archivo, ch, 1500);
-    printf("text: %s\n",ch);
-   //cz_write(archivo, ch, 2048);
-    //free(ch);
-    if(archivo!=NULL){
-      //printf("not null\n");
-    cz_close(archivo);
-    }
-  }
-free(ch);
-  //cz_close(archivo);
-  //Esto no cambia
+  cz_ls();
+
 
   copiar_bloque_directorio_disco(fp, bl_direc , 0);
   cerrar_bloque_directorio(bl_direc);
@@ -42,4 +27,3 @@ free(ch);
   fclose(fp);
   return 0;
 }
-//871424
