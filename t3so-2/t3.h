@@ -15,7 +15,7 @@ struct bloque_dir_indirecto{
 /** Estructura de una arraylist */
 struct czfile
 {
-  int size;
+  unsigned int size;
   int indice; //bloque indice
   int f_cracion;
   int f_modificacion;

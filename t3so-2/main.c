@@ -23,17 +23,18 @@ int main(int argc, char *argv[])
 
   //Estas lineas son las que cambian
   //cz_rm("ejemplo.txt");
-  //cz_ls();
-  czFILE* archivo = cz_open("ejemplo.txt",'r');
+  cz_ls();
+//  czFILE* archivo = cz_open("ejemplo.txt",'r');
 //  cz_write( archivo, "12345678901234567890\0", 21);
-  char *ch=(char*)calloc(21,1);
-  //czFILE* archivo = cz_open("ejemplo.txt",'r');
-  cz_read( archivo, ch, 21);
+  char *ch=(char*)calloc(486005,1);
+  ch[486004]='\0';
+  czFILE* archivo = cz_open("aaaaa.gif",'r');
+  cz_read( archivo, ch, 486004);
   printf("text: %s\n",ch);
   free(ch);
   if(archivo!=NULL){
     printf("not null\n");
-    cz_close(archivo);
+  cz_close(archivo);
   }
 
   //cz_close(archivo);

@@ -59,10 +59,28 @@ void escribir_string_disco( FILE *fp, int pos, char* str, int size_of_str){
     }
 
 int leer_int_disco( FILE *fp, int pos){
+	unsigned char c1=leer_char_disco( fp,  pos);
+	pos+=1;
+	unsigned char c2=leer_char_disco( fp,  pos);
+	pos+=1;
+	unsigned char c3=leer_char_disco( fp,  pos);
+	pos+=1;
+	unsigned char c4=leer_char_disco( fp,  pos);
+//	printf("ies: %i %i %i %i\n",c1,c2,c3,c4);
+
+
+	//char c2= p;
+	//printf("c1 %i c2 %i",c1,c2);
+	//unsigned int p2= c1<<24 | c2<<16 | c3<<8 | c4;
+	unsigned int p2=c4+c3*pow(2,8)+c2*pow(2,16)+c1*pow(2,24);
+
+	/*
   unsigned int buffer[1];
   fseek(fp, pos, SEEK_SET);
   fread(buffer, 4, 1, fp);
-  return buffer[0];
+	int i=buffer[0];*/
+	///printf(" int %i",buffer[0]);
+  return p2;
 }
 char leer_char_disco( FILE *fp, int pos){
   unsigned char buffer[1];
@@ -90,9 +108,22 @@ Directorios* abrir_bloque_directorio(FILE *fp){
     d->validez=leer_char_disco( fp,  pos);
     pos=pos+1;
     d->nombre=leer_string_disco(fp,  pos, 11);//podria ser 12
-    pos+=11;
-    d->bloque_indice=leer_int_disco( fp,  pos);
-    pos+=4;
+    pos=pos+11;
+		pos+=2;
+		//int p=leer_int_disco(fp,pos);
+		//printf("p:%i   ",p);
+		//char c1= p >>8;
+		char c1=leer_char_disco( fp,  pos);
+		pos+=1;
+		char c2=leer_char_disco( fp,  pos);
+		pos+=1;
+
+		//char c2= p;
+		//printf("c1 %i c2 %i",c1,c2);
+		int p2= c1<<8 | c2;
+		d->bloque_indice=p2;
+    //pos+=4;
+		printf("%i: validez: %i  nombre: %s indice: %i \n",i,d->validez,d->nombre,d->bloque_indice);
 
     bloque_dir->directorios[i]=d;
   }
@@ -205,8 +236,9 @@ int comparar_string(char *s2 , char*s1,  int largo){
 	//printf("_______________");
   int i=0;
   for(i=0;i<largo;i++){
-		//printf("c1: %c c2:%c \n",s1[i],s2[i]);
+		printf("c1: %c c2:%c \n",s1[i],s2[i]);
     if(s1[i]!=s2[i]){
+			printf("diferencia: %c %c",s1[i],s2[i]);
       return 0;
     }
   }
@@ -228,8 +260,8 @@ int cz_exists2(char*filename,Directorios*bloque){
     //
     Directorio* d=bloque->directorios[i];
 		//int s=comparar_string(filename2 , d->nombre,  11);
-    int s=comparar_string(filename , d->nombre,  11);
-    if(s==1 && d->validez==1){
+    int s=strncmp(filename , d->nombre,  11);
+    if(s==0 && d->validez==1){
 			//printf("existe");
       return 1;
     }
@@ -243,8 +275,9 @@ int devolver_bloque_indice(char*filename){
   Directorios*bloque=bl_direc;
   for (i=0;i<64;i++){
     Directorio* d=bloque->directorios[i];
-    int s=comparar_string(filename , d->nombre,  11);
-    if(s==1 && d->validez==1){
+    //int s=comparar_string(filename , d->nombre,  11);
+		int s=strncmp(filename,d->nombre,11);
+    if(s==0 && d->validez==1){
       return d->bloque_indice;
     }
   }
@@ -275,7 +308,8 @@ if(mode=='r'){
 		n[lll]=filename[lll];
 		lll++;
 	}
-  int exist=cz_exists(n);
+	//int exist=cz_exists(n);
+  int exist=cz_exists(filename);
 	printf("existe?: %i ",exist);
 
   if(exist==1){
@@ -283,15 +317,33 @@ if(mode=='r'){
       int indice = devolver_bloque_indice(n);
 			free(n);
       int pos= indice*1024;
+			unsigned char c1=leer_char_disco( fp,  pos);
+			pos+=1;
+			unsigned char c2=leer_char_disco( fp,  pos);
+			pos+=1;
+			unsigned char c3=leer_char_disco( fp,  pos);
+			pos+=1;
+			unsigned char c4=leer_char_disco( fp,  pos);
+			//printf("ies: %i %i %i %i\n",c1,c2,c3,c4);
 
-      int tamao= leer_int_disco(fp,pos);
-      pos+=4;
+
+			//char c2= p;
+			//printf("c1 %i c2 %i",c1,c2);
+			//unsigned int p2= c1<<24 | c2<<16 | c3<<8 | c4;
+			unsigned int p2=c4+c3*pow(2,8)+c2*pow(2,16)+c1*pow(2,24);
+
+
+    //  int tamao= leer_int_disco(fp,pos);
+      //pos+=4;
       int creacion=leer_int_disco(fp,pos);
       pos+=4;
       int modificacion=leer_int_disco(fp,pos);
       pos+=4;
       f_index->indice=indice;
-      f_index->size=tamao;
+			printf("indice %u\n",f_index->indice);
+      f_index->size=p2;
+			printf("%s\n",filename);
+			printf("size: %u\n",p2);
       f_index->ultimo_read=0;
       f_index->bloques_de_datos=NULL;
       f_index->f_cracion=creacion;
@@ -302,7 +354,13 @@ if(mode=='r'){
       int j=0;
       f_index->punteros=(int*)calloc(508,sizeof(int));
       for (j=0;j<252;j++){
-        f_index->punteros[j]=leer_int_disco(fp,pos);
+				int p=leer_int_disco(fp,pos);
+				char c1= p >>8;
+				char c2= p;
+				int p2= c1<<8 | c2;
+				f_index->punteros[j]=p2;
+        //f_index->punteros[j]=leer_int_disco(fp,pos);
+				//printf("puntero: %i\n ",f_index->punteros[j]);
         pos+=4;
       }
       f_index->puntero_dir_indirecto=leer_int_disco(fp,pos);
@@ -329,9 +387,9 @@ if(mode=='w'){
 	int lll=0;
 	while(lll<11){
 		printf("caracter: %c ",filename[lll]);
-		if(filename[lll]=='\0'){
-			break;
-		}
+		//if(filename[lll]=='\0'){
+			//break;
+	//	}
 		n[lll]=filename[lll];
 		lll++;
 	}
@@ -392,6 +450,7 @@ return NULL;
 /** DOMINGO*/
 int cz_read(czFILE*file_desc, char* buffer, int nbytes){
   //buffer=(char*)calloc(nbytes,sizeof(char));
+	printf("ultimo read: %i",file_desc->ultimo_read);
   if(file_desc->size==0 ||file_desc->mode=='w' || file_desc->ultimo_read>=file_desc->size){
 		printf("size: %i\n",file_desc->size);
 		printf("chao");
@@ -407,19 +466,26 @@ while(nbytes>0){
     break;
   }
   int bloque_actual= (file_desc->leyendo-(file_desc->leyendo%1024))/1024;
-	printf("b:%i\n",bloque_actual);
+
+
+	//printf("bloque_actual:%i",bloque_actual);
+	//printf("b:%i\n",bloque_actual);
   int offset=file_desc->leyendo%1024;
+	//printf("of:%i\n",offset);
   int bloque_en_disco;
    bloque_en_disco=file_desc->punteros[bloque_actual];
   if(bloque_actual<252){
      bloque_en_disco=file_desc->punteros[bloque_actual];
+		//printf("bloque_en_disco:%i\n",bloque_en_disco);
   }
   else{
     int p=file_desc->puntero_dir_indirecto*1024+((bloque_actual-252)*4);
     bloque_en_disco=leer_int_disco(fp,  p);
-  }
-  int pos=bloque_en_disco*1024+offset;
 
+  }
+
+  int pos=bloque_en_disco*1024+offset;
+//printf("pos:%i\n",pos);
   buffer[j]=leer_char_disco( fp,  pos);
   j++;
   file_desc->leyendo++;
@@ -611,7 +677,7 @@ int cz_rm(char* filename){
 			}
 	    //
 			//printf("nom: %s\n",filename2);
-			int s=comparar_string(filename2 , bl_direc->directorios[contador_rm]->nombre,  11);
+			int s=strncmp(filename2 , bl_direc->directorios[contador_rm]->nombre,  11);
 			//printf("s: %i \n",s);
 			if (s==1 && bl_direc->directorios[contador_rm]->validez == 1){
       //if (bl_direc->directorios[contador_rm]->nombre == filename && bl_direc->directorios[contador_rm]->validez == 1){
@@ -645,7 +711,7 @@ void cz_ls(){
   printf("LS: \n");
   for(contador_ls = 0 ; contador_ls < 64; contador_ls++){
     if(bl_direc->directorios[contador_ls]->validez == 1){
-      printf("%s \n",bl_direc->directorios[contador_ls]->nombre);
+      printf("%s  \n",bl_direc->directorios[contador_ls]->nombre);
     }
   }
 }
