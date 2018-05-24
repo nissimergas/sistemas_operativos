@@ -27,11 +27,6 @@ int main(int argc, char *argv[])
 
   fp = fopen(argv[1], "rb+");
   bloques_bm=abrir_bloques_bitmap(fp);
- int i=0;
-  printf("bloque: ");
-  for(i=0;i<100;i++){
-    printf("%i ",bloques_bm->bits[i]);
-  }
   bl_direc=abrir_bloque_directorio(fp);
 
   //Estas lineas son las que cambian
@@ -40,16 +35,17 @@ int main(int argc, char *argv[])
 //czFILE* archivo = cz_open("ejemplo.txt",'r');
 //  cz_write( archivo, "12345678901234567890\0", 21);
   char *ch=(char*)calloc(2048,1);
-  ch[100]='\0';
-//  int i;
+  //ch[100]='\0';
+  int i;
   for (i=0;i<100;i++){
-    ch[i]='a';
+    //ch[i]='a';
   }
-  czFILE* archivo = cz_open("hhh.txt",'w');
+  czFILE* archivo = cz_open("hhh.txt",'r');
   if (archivo!=NULL){
-    //cz_read( archivo, ch, 2048);
+    printf("sadasdsadsadsa");
+    cz_read( archivo, ch, 2000);
     printf("text: %s\n",ch);
-   cz_write(archivo, ch, 2048);
+   //cz_write(archivo, ch, 2048);
     free(ch);
     if(archivo!=NULL){
       printf("not null\n");

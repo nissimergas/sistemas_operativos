@@ -16,6 +16,9 @@ struct bloque_dir_indirecto{
 struct czfile
 {
   unsigned int size;
+  int b_libre;
+  int espacio_libre;
+  char*nombre;
   int indice; //bloque indice
   int f_cracion;
   int f_modificacion;
@@ -106,7 +109,7 @@ int cz_cp(char*orig, char*dest);
 /** borra */
 int cz_rm(char* filename);
 
-void char2binstr(char num, char* bin);
+void char2binstr(unsigned char num, char* bin);
 int cz_read_cp(czFILE*file_desc, char* buffer, int nbytes);
 void escribir_bloques_bitmap(FILE *fp);
 
@@ -114,4 +117,4 @@ void escribir_bloques_bitmap(FILE *fp);
 void cz_ls();
 Directorios*bl_direc;
 FILE *fp;
-Conjunto_bloques_bitmap* bloques_bitmap;
+Conjunto_bloques_bitmap* bloques_bm;
