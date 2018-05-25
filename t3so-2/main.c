@@ -17,22 +17,55 @@ int main(int argc, char *argv[])
   //TODO: preguntar a Nissim como funciona el remove con bloque de direccionamiento indiecto
 
   //Esta linea no se puede quitar
+  /*
+  fp = fopen("j4.bin", "rb+");
+   escribir_int_disco(  fp,  1, 557060437);
+   int n=leer_int_disco( fp,  12);
+   printf("n: %i    ...",n);
+   fclose(fp);
+   */
+
   fp = fopen(argv[1], "rb+");
-  bloques_bitmap=abrir_bloques_bitmap(fp);
+  bloques_bm=abrir_bloques_bitmap(fp);
+ int i=0;
+  printf("bloque: ");
+  for(i=0;i<100;i++){
+    printf("%i ",bloques_bm->bits[i]);
+  }
   bl_direc=abrir_bloque_directorio(fp);
+
   //Estas lineas son las que cambian
-  czFILE * file_desc;
-  file_desc = cz_open("ejemplo.txt", 'w');
+  //cz_rm("alberto2.txt");
   cz_ls();
-  cz_rm("23456789AB");
-  cz_close(file_desc);
+//czFILE* archivo = cz_open("ejemplo.txt",'r');
+//  cz_write( archivo, "12345678901234567890\0", 21);
+  char *ch=(char*)calloc(2048,1);
+  ch[100]='\0';
+//  int i;
+  for (i=0;i<100;i++){
+    ch[i]='a';
+  }
+  czFILE* archivo = cz_open("hhh.txt",'w');
+  if (archivo!=NULL){
+    //cz_read( archivo, ch, 2048);
+    printf("text: %s\n",ch);
+   cz_write(archivo, ch, 2048);
+    free(ch);
+    if(archivo!=NULL){
+      printf("not null\n");
+    cz_close(archivo);
+    }
+  }
 
-  //Esto no se puede cambiar
-  fclose(fp);
+  //cz_close(archivo);
+  //Esto no cambia
+
+  copiar_bloque_directorio_disco(fp, bl_direc , 0);
   cerrar_bloque_directorio(bl_direc);
-  free(file_desc->punteros);
-  free(file_desc);
-  free(bloques_bitmap);
-
+  escribir_bloques_bitmap(fp);
+  free(bloques_bm->bits);
+  free(bloques_bm);
+  fclose(fp);
   return 0;
 }
+//871424
