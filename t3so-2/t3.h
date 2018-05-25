@@ -94,10 +94,10 @@ int cz_exists2(char*filename,Directorios*bloque);
 int cz_exists(char*filename);
 
 /** lee n_bytes desde el archivo y los copia en buffer*/
-int cz_read(czFILE*file_desc, char* buffer, int nbytes);
+int cz_read(czFILE*file_desc, void* buff, int nbytes);
 
 /** escribe en el archivo lo que hay en buffer (nbytes) */
-int cz_write(czFILE*file_desc, char* buffer, int nbytes);
+int cz_write(czFILE*file_desc, void* buff, int nbytes);
 
 /** cierra el archivo */
 int cz_close(czFILE* file_desc);

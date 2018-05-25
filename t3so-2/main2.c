@@ -18,11 +18,15 @@ int main(int argc, char *argv[])
   for (i=0;i<100;i++){
     //ch[i]='a';
   }
-  czFILE* archivo = cz_open("p4.txt",'r');
+  czFILE* archivo = cz_open("p5.txt",'r');
   if (archivo!=NULL){
 
-    cz_read( archivo, ch, 1500);
+    //cz_write(archivo, ch, 2048);
+    for (i=0;i<400;i++){
+    cz_read( archivo, ch, 1020);
+
     printf("text: %s\n",ch);
+    }
    //cz_write(archivo, ch, 2048);
     //free(ch);
     if(archivo!=NULL){

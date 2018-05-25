@@ -193,10 +193,10 @@ Conjunto_bloques_bitmap* abrir_bloques_bitmap(FILE *fp){
 	for (s=0;s<8;s++){
 		cada_char[s]=0;
 	}
-	printf("char1: %i....",arreglo_chars[0]);
+	//printf("char1: %i....",arreglo_chars[0]);
 	char2binstr(arreglo_chars[0], cada_char);
 	for(s=0;s<8;s++){
-		printf("%i",cada_char[s]);
+		//printf("%i",cada_char[s]);
 	}
 
   for(i = 0; i < 1024*8; i++){
@@ -311,7 +311,7 @@ if(mode=='r'){
 	}
 	//int exist=cz_exists(n);
   int exist=cz_exists(filename);
-	printf("existe?: %i ",exist);
+	//printf("existe?: %i ",exist);
 
   if(exist==1){
     czFILE* f_index =(czFILE*)calloc(1,sizeof(czFILE));
@@ -342,10 +342,10 @@ if(mode=='r'){
       int modificacion=leer_int_disco(fp,pos);
       pos+=4;
       f_index->indice=indice;
-			printf("indice %u\n",f_index->indice);
+			//printf("indice %u\n",f_index->indice);
       f_index->size=p2;
-			printf("%s\n",filename);
-			printf("size: %u\n",p2);
+			//printf("%s\n",filename);
+			//printf("size: %u\n",p2);
       f_index->ultimo_read=0;
       f_index->bloques_de_datos=NULL;
       f_index->f_cracion=creacion;
@@ -389,7 +389,7 @@ if(mode=='w'){
 	n[11]='\0';
 	int lll=0;
 	while(lll<11){
-		printf("caracter: %c ",filename[lll]);
+		//printf("caracter: %c ",filename[lll]);
 		//if(filename[lll]=='\0'){
 			//break;
 	//	}
@@ -397,14 +397,20 @@ if(mode=='w'){
 		lll++;
 	}
   int exist=cz_exists(filename);
+  if(exist==1){
+
+    free(n);
+    fprintf(stderr,"No se pudo abrir el archivo,el nombre de archivo: %s ya esta ocupado. \n",filename);
+      return NULL;
+  }
   if(exist==0){
     int espacio_libre=espacio_libre_directorio();
     if(espacio_libre!=-1){
       int b_libre=espacio_libre_bitmap();
-			printf("bloque libre: %i\n",b_libre);
+			//printf("bloque libre: %i\n",b_libre);
       if (b_libre!=-1){
-				printf("b_libre: %i \n",b_libre);
-				printf("nombre: %s \n",n);
+				//printf("b_libre: %i \n",b_libre);
+				//printf("nombre: %s \n",n);
 
 				bloques_bm->bits[b_libre]=1;
 				  bl_direc->directorios[espacio_libre]->validez=1;
@@ -454,19 +460,23 @@ return NULL;
 
 /** lee n_bytes desde el archivo y los copia en buffer*/
 /** DOMINGO*/
-int cz_read(czFILE*file_desc, char* buffer, int nbytes){
+int cz_read(czFILE*file_desc, void* buff, int nbytes){
+  char *buffer=(char*)buff;
   //buffer=(char*)calloc(nbytes,sizeof(char));
-	printf("ultimo read: %i",file_desc->ultimo_read);
+	//printf("ultimo read: %i",file_desc->ultimo_read);
   if(file_desc->size==0 ||file_desc->mode=='w' || file_desc->ultimo_read>=file_desc->size){
 		if(file_desc->mode=='w' ){
-			fprintf(stderr,"El archivo esta en modo escritura");
+      //cz_close(file_desc);
+			fprintf(stderr,"El archivo esta en modo escritura\n");
+
 		}
 		else{
-			fprintf(stderr,"leyendo fuera de limite");
+      //cz_close(file_desc);
+			fprintf(stderr,"leyendo fuera de limite, el archivo es de tamaño 0\n");
 
 	}
-		printf("size: %i\n",file_desc->size);
-		printf("chao");
+		//printf("size: %i\n",file_desc->size);
+		//printf("chao");
     return -1;
   }
 //int fin_lectura=nbytes+file_desc->ultimo_read;
@@ -476,7 +486,8 @@ int cz_read(czFILE*file_desc, char* buffer, int nbytes){
 int j=0;
 while(nbytes>0){
   if(file_desc->leyendo>=file_desc->size){
-		fprintf(stderr,"leyendo fuera de limite");
+    //cz_close(file_desc);
+		fprintf(stderr,"leyendo fuera de limite.\nEl archivo tiene tamaño: %i , se esta leyendo en pos: %i \n",file_desc->size,file_desc->leyendo);
     return j;
   }
   int bloque_actual= (file_desc->leyendo-(file_desc->leyendo%1024))/1024;
@@ -512,9 +523,11 @@ return j;
 }
 
 /** escribe en el archivo lo que hay en buffer (nbytes) */
-int cz_write(czFILE*file_desc, char* buffer, int nbytes){
+int cz_write(czFILE*file_desc, void * buff, int nbytes){
+  char *buffer=(char*)buff;
 	if(file_desc->mode=='r'){
-		fprintf(stderr,"El archivo esta en modo lectura");
+    //cz_close(file_desc);
+		fprintf(stderr,"Imposible escribir, el archivo esta en modo lectura\n");
 		return -1;
 	}
 	file_desc->f_modificacion=(int)time(NULL);
@@ -522,13 +535,17 @@ int cz_write(czFILE*file_desc, char* buffer, int nbytes){
   while(nbytes>0){
 		//printf("nb: %i\n",nbytes);
     int bloque_a_escribir=(file_desc->size-(file_desc->size%1024))/1024;
+    if(bloque_a_escribir>=508){
+      fprintf(stderr,"Se ha usado todo el espacio destinado a este archivo.\n");
+      return j;
+    }
     int offset=file_desc->size%1024;
     if(offset==0){
       int espacio_libre=espacio_libre_bitmap();
 
-			printf("espaciol: %i\n",espacio_libre);
+			//printf("espaciol: %i\n",espacio_libre);
       if (espacio_libre==-1){
-				fprintf(stderr,"No queda espacio");
+				fprintf(stderr,"No queda espacio\n");
         return j;//error espacio
       }
       else{
@@ -539,7 +556,7 @@ int cz_write(czFILE*file_desc, char* buffer, int nbytes){
           int espacio_libre2=espacio_libre_bitmap();
 
           if(espacio_libre2==-1){
-						fprintf(stderr,"No queda espacio");
+						fprintf(stderr,"No queda espacio\n");
             return j;//error espacio
           }
           else{
@@ -563,7 +580,7 @@ int cz_write(czFILE*file_desc, char* buffer, int nbytes){
     j++;
 		nbytes--;
   }
-
+printf("Escritura sin error\n");
 return j;
 }
 
@@ -595,7 +612,7 @@ int cz_close(czFILE* file_desc){
     for(i=0;i<508;i++){
       if(file_desc->punteros[i]!=-1){
         pos=file_desc->punteros[i]*1024;
-				printf("%i\n",pos);
+				//printf("%i\n",pos);
 				//printf("%s",file_desc->bloques_de_datos[i]->datos);
         escribir_string_disco( fp, pos,  file_desc->bloques_de_datos[i]->datos, 1024);
       }
@@ -639,8 +656,10 @@ int cz_mv(char*orig, char*dest){
   }
   int contador_mv;
   for(contador_mv = 0 ; contador_mv < 64; contador_mv++){
-    if (bl_direc->directorios[contador_mv]->nombre == orig){
-      bl_direc->directorios[contador_mv]->nombre = dest;
+    //printf("Archivo: %s\n", bl_direc->directorios[contador_mv]->nombre);
+    if (strncmp(bl_direc->directorios[contador_mv]->nombre, orig, 11) == 0){
+      strcpy(bl_direc->directorios[contador_mv]->nombre ,dest);
+      //bl_direc->directorios[contador_mv]->nombre = dest;
     }
   }
   return 0;
@@ -687,50 +706,75 @@ int cz_cp(char*orig, char*dest){
   if(cz_exists(dest) == 1){
       return 1;
   }
-  if(strcmp(orig, dest) != 0){
+  if(strcmp(orig, dest) == 0){
       return 2;
   }
   czFILE* archivo_original = cz_open(orig, 'r');
   char * buffer_copia = (char *) calloc(archivo_original->size, sizeof(char));
-  cz_read_cp(archivo_original, buffer_copia, archivo_original->size);
+  cz_read_cp(archivo_original, buffer_copia, archivo_original->size -1);
+
+  printf("el buffer de copia dice: %s\n",buffer_copia);
 
   czFILE* nuevo_archivo = cz_open(dest, 'w');
   cz_write( nuevo_archivo, buffer_copia , archivo_original->size);
 
+  cz_close(archivo_original);
+  cz_close(nuevo_archivo);
   free(buffer_copia);
 
   return 0;
 }
 
+
+/** borra */
 /** borra */
 int cz_rm(char* filename){
   int contador_rm;
+  int contador_rm_2;
+  int existe = 0;
+  for(contador_rm_2 = 0 ; contador_rm_2 < 64; contador_rm_2++){
+    if(strncmp(bl_direc->directorios[contador_rm_2]->nombre, filename, 11) == 0){
+      //strncmp(bl_direc->directorios[contador_mv]->nombre, orig, 11) == 0
+      existe = 1;
+    }
+  }
+
+  if(existe == 0){
+    printf("No existe un archivo con ese nombre \n" );
+    return 0;
+  }
+
+  else{
+    printf("Existe un archivo con ese nombre \n" );
   for(contador_rm = 0 ; contador_rm < 64; contador_rm++){
-		char filename2[11];
-		int nn=0;
-		for(nn=0;nn<11;nn++){
-			filename2[nn]=0;
-		}
-	    int i=0;
-	    while (i<11){
-	      if(filename[i]=='\0'){
-	        break;
-	      }
-	      filename2[i]=filename[i];
-	      i++;
-			}
-	    //
-			//printf("nom: %s\n",filename2);
-			int s=strncmp(filename2 , bl_direc->directorios[contador_rm]->nombre,  11);
-			//printf("s: %i \n",s);
-			if (s==1 && bl_direc->directorios[contador_rm]->validez == 1){
+    char filename2[11];
+    int nn=0;
+    for(nn=0;nn<11;nn++){
+      filename2[nn]=0;
+    }
+      int i=0;
+      while (i<11){
+        if(filename[i]=='\0'){
+          break;
+        }
+        filename2[i]=filename[i];
+        i++;
+      }
+      //printf("nombre filename2: %s\n",filename2);
+      int s=strncmp(filename2 , bl_direc->directorios[contador_rm]->nombre,  11);
+      //printf("valor s: %i \n",s);
+      if ((s==0) && (bl_direc->directorios[contador_rm]->validez == 1)){
       //if (bl_direc->directorios[contador_rm]->nombre == filename && bl_direc->directorios[contador_rm]->validez == 1){
-        printf("Eliminando archivo %s \n", filename);
+        //printf("Eliminando archivo %s \n", filename);
         //indice = bl_direc->directorios[contador_rm]->bloque_indice;
         czFILE* archivo = cz_open(filename, 'r');
         int i;
         for(i = 0; i < 252; i++){
+          //printf("Contador en %d \n", i);
+          //printf("Puntero: %d\n", archivo->punteros[i]);
           if(archivo->punteros[i] != -1){
+            //printf("Entramos \n" );
+          //  printf("Valor puntero: %d\n",  bloques_bm->bits[archivo->punteros[i]]);
             bloques_bm->bits[archivo->punteros[i]] = 0;
           }
         }
@@ -741,12 +785,13 @@ int cz_rm(char* filename){
             bloques_bm->bits[posicion] = 0;
           }
         }
-
         cz_close(archivo);
-				bl_direc->directorios[contador_rm]->validez = 0;
+        printf("Archivo que sera invalidado: %s\n", bl_direc->directorios[contador_rm]->nombre);
+        bl_direc->directorios[contador_rm]->validez = 0;
       }
   }
   return 0;
+}
 }
 
 /** ls */

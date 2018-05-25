@@ -12,42 +12,12 @@ int main(int argc, char *argv[])
 
   fp = fopen(argv[1], "rb+");
   bloques_bm=abrir_bloques_bitmap(fp);
+
   bl_direc=abrir_bloque_directorio(fp);
- char *ch=(char*)calloc(2000,sizeof(char));
-  ch[1999]='\0';
- int i;
-  for (i=0;i<100;i++){
-    ch[i]='a';
-  }
-  for (i=100;i<250;i++){
-    ch[i]='b';
-  }
-  for (i=250;i<1800;i++){
-    ch[i]='c';
-  }
-/*  for (i=3000;i<3200;i++){
-    ch[i]='d';
-  }*/
-
-    ch[i]='\0';
-
-  czFILE* archivo = cz_open("p5.txt",'w');
-
-  if (archivo!=NULL){
-  for(i=0;i<50;i++){
 
 
-   cz_write(archivo, ch, 1500);
-}
-    if(archivo!=NULL){
-      printf("not null\n");
-    cz_close(archivo);
-    }
-  }
-  free(ch);
+  cz_ls();
 
-  //cz_close(archivo);
-  //Esto no cambia
 
   copiar_bloque_directorio_disco(fp, bl_direc , 0);
   cerrar_bloque_directorio(bl_direc);
@@ -57,4 +27,3 @@ int main(int argc, char *argv[])
   fclose(fp);
   return 0;
 }
-//871424
