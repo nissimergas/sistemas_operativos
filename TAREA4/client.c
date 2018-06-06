@@ -9,10 +9,12 @@
 #define PORT 4444
 
 int main(){
-	
+
+
+	char*buffer=(char*)calloc(258,1);
 	int clientSocket;
 	struct sockaddr_in serverAddr;
-	char buffer[1024];
+	//char buffer[1024];
 
 	clientSocket = socket(PF_INET, SOCK_STREAM, 0);
 	printf("[+]Client Socket Created Sucessfully.\n");
@@ -24,9 +26,15 @@ int main(){
 
 	connect(clientSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
 	printf("[+]Connected to Server.\n");
+	printf( "Enter a value :");
+	gets( buffer);
+	//strcpy(buffer, "soy cliente1");
+
+	send(clientSocket, buffer, strlen(buffer), 0);
 
 	recv(clientSocket, buffer, 1024, 0);
 	printf("[+]Data Recv: %s\n", buffer);
 	printf("[+]Closing the connection.\n");
+	free(buffer);
 return 0;
 }

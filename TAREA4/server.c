@@ -9,16 +9,19 @@
 
 #define PORT 4444
 
-int main(){
 
+
+
+int main(){
+  
   int sockfd;
   struct sockaddr_in serverAddr;
 
-  int newSocket;
+  int cliente1, cliente2;
   struct sockaddr_in newAddr;
 
   socklen_t addr_size;
-  char buffer[1024];
+  char buffer[258];
 
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
   printf("[+]Server Socket Created Sucessfully.\n");
@@ -30,17 +33,23 @@ int main(){
 
   bind(sockfd, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
   printf("[+]Bind to Port number %d.\n", 4455);
-  int i=0;
-  while(i<2){
-      listen(sockfd, 5);
-      printf("[+]Listening...\n");
+ 
+    listen(sockfd, 5);
+    printf("[+]Listening...\n");
+ 
 
-      newSocket = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
+    cliente1 = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
+    cliente2 = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
+    recv(cliente1, buffer, 258, 0);
+    printf("[+]Data Recv: %s\n", buffer);
 
-      strcpy(buffer, "Hello");
-      send(newSocket, buffer, strlen(buffer), 0);
-      i++;
-   }
+    recv(cliente2, buffer, 258, 0);
+    printf("[+]Data Recv: %s\n", buffer);
+
+    strcpy(buffer, "Hello");
+    send(cliente1, buffer, strlen(buffer), 0);
+     
+   
   printf("[+]Closing the connection.\n");
   return 0;
 
