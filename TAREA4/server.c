@@ -6,11 +6,9 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include "t3.h"
 
-#define PORT 4444
-
-
-
+#define PORT 4445
 
 int main(){
   
@@ -40,14 +38,25 @@ int main(){
 
     cliente1 = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
     cliente2 = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
-    recv(cliente1, buffer, 258, 0);
-    printf("[+]Data Recv: %s\n", buffer);
+    
 
-    recv(cliente2, buffer, 258, 0);
-    printf("[+]Data Recv: %s\n", buffer);
+///recivo un mensaje c1
+     casos_respuestas(cliente1, buffer);
+     casos_respuestas(cliente1, buffer);
+
+//Envio a c1
+    //strcpy(buffer, "Hello");
+    //send(cliente1, buffer, strlen(buffer), 0);
+
+
+
+///recivo un mensaje c2
+    casos_respuestas(cliente2, buffer);
+    casos_respuestas(cliente2, buffer);
+//Envio a c2
 
     strcpy(buffer, "Hello");
-    send(cliente1, buffer, strlen(buffer), 0);
+    send(cliente2, buffer, strlen(buffer), 0);
      
    
   printf("[+]Closing the connection.\n");
