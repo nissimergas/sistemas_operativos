@@ -9,9 +9,10 @@
 #include "t3.h"
 #include <unistd.h>
 
-#define PORT 4474
+#define PORT 4475
 
 int main(){
+  int apuesta;
   //estructura mantenida por servidor
   char* nombre1=(char*)calloc(200,1);
   char* nombre2=(char*)calloc(200,1);
@@ -27,6 +28,8 @@ int main(){
   //ocupado[0]=1;
   Player* player1=(Player*)calloc(1,sizeof(Player));
   Player* player2=(Player*)calloc(1,sizeof(Player));
+  Player* jugador1=player1;
+  Player* jugador2=player2;
   player1->pot=1000;
   player2->pot=1000;
   player1->nombre=nombre1;
@@ -156,7 +159,7 @@ cliente2 = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
 //apuesta
         ////////////////////////apuesta////////////////////////////////////
         int error=1;
-        while(error=1){
+        while(error==1){
           get_bet(cliente1,buffer);
           recv(cliente1, buffer, 258, 0);
           int apuesta;
@@ -168,7 +171,7 @@ cliente2 = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
             apuesta=0;
             
           }
-          if(buffer[1]==3{
+          if(buffer[1]==3){
             apuesta=100;
             
           }
@@ -194,7 +197,7 @@ cliente2 = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
       ////////////////////////apuesta j2////////////////////////////////////
       get_bet(cliente2,buffer);
       error=1;
-      while(error=1){
+      while(error==1){
           get_bet(cliente2,buffer);
           recv(cliente2, buffer, 258, 0);
           int apuesta;
@@ -206,7 +209,7 @@ cliente2 = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
             apuesta=0;
             
           }
-          if(buffer[1]==3{
+          if(buffer[1]==3){
             apuesta=100;
             
           }
@@ -224,7 +227,7 @@ cliente2 = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
           error=0;
       }
       if(apuesta==-1){
-        jugador1->pot+=(bet1+bet2)
+        jugador1->pot+=(bet1+bet2);
         continue;
       }
        jugador2->pot-=apuesta;
@@ -232,7 +235,7 @@ cliente2 = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
 
       if(bet2>bet1){
         int error=1;
-        while(error=1){
+        while(error==1){
           get_bet(cliente1,buffer);
           recv(cliente1, buffer, 258, 0);
           int apuesta;
@@ -244,7 +247,7 @@ cliente2 = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
             apuesta=0;
             
           }
-          if(buffer[1]==3{
+          if(buffer[1]==3){
             apuesta=100;
             
           }
@@ -261,7 +264,7 @@ cliente2 = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
           error=0;
       }
       if(apuesta==-1){
-        jugador2->pot+=(bet1+bet2)
+        jugador2->pot+=(bet1+bet2);
         continue;
       }
         jugador1->pot+=bet1;
@@ -271,7 +274,7 @@ cliente2 = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
 
 error=1;
 
-      while(error=1){
+      while(error==1){
           get_bet(cliente2,buffer);
           recv(cliente2, buffer, 258, 0);
           int apuesta;
@@ -283,7 +286,7 @@ error=1;
             apuesta=0;
             
           }
-          if(buffer[1]==3{
+          if(buffer[1]==3){
             apuesta=100;
             
           }
@@ -294,14 +297,14 @@ error=1;
           if(buffer[1]==5){
             apuesta=-300;
           }
-          if(apuesta>jugador2->pot+bet2 ||  bet1!=apuesta{
+          if(apuesta>jugador2->pot+bet2 ||  bet1!=apuesta){
             error_bet(cliente2,buffer);
             
           }
           error=0;
       }
       if(apuesta==-1){
-        jugador1->pot+=(bet1+bet2)
+        jugador1->pot+=(bet1+bet2);
         continue;
       }
        jugador2->pot+=bet2;
@@ -334,7 +337,7 @@ error=1;
 
          ////////////////////////apuesta////////////////////////////////////
         int error=1;
-        while(error=1){
+        while(error==1){
           get_bet(cliente2,buffer);
           recv(cliente2, buffer, 258, 0);
           int apuesta;
@@ -346,7 +349,7 @@ error=1;
             apuesta=0;
             
           }
-          if(buffer[1]==3{
+          if(buffer[1]==3){
             apuesta=100;
             
           }
@@ -372,7 +375,7 @@ error=1;
       ////////////////////////apuesta j2////////////////////////////////////
       get_bet(cliente1,buffer);
       error=1;
-      while(error=1){
+      while(error==1){
           get_bet(cliente1,buffer);
           recv(cliente1, buffer, 258, 0);
           int apuesta;
@@ -384,7 +387,7 @@ error=1;
             apuesta=0;
             
           }
-          if(buffer[1]==3{
+          if(buffer[1]==3){
             apuesta=100;
             
           }
@@ -402,7 +405,7 @@ error=1;
           error=0;
       }
       if(apuesta==-1){
-        jugador2->pot+=(bet1+bet2)
+        jugador2->pot+=(bet1+bet2);
         continue;
       }
        jugador1->pot-=apuesta;
@@ -410,7 +413,7 @@ error=1;
 
       if(bet1>bet2){
         int error=1;
-        while(error=1){
+        while(error==1){
           get_bet(cliente2,buffer);
           recv(cliente2, buffer, 258, 0);
           int apuesta;
@@ -422,7 +425,7 @@ error=1;
             apuesta=0;
             
           }
-          if(buffer[1]==3{
+          if(buffer[1]==3){
             apuesta=100;
             
           }
@@ -439,7 +442,7 @@ error=1;
           error=0;
       }
       if(apuesta==-1){
-        jugador1->pot+=(bet1+bet2)
+        jugador1->pot+=(bet1+bet2);
         continue;
       }
         jugador2->pot+=bet2;
@@ -449,7 +452,7 @@ error=1;
 
 error=1;
 
-      while(error=1){
+      while(error==1){
           get_bet(cliente1,buffer);
           recv(cliente1, buffer, 258, 0);
           int apuesta;
@@ -461,7 +464,7 @@ error=1;
             apuesta=0;
             
           }
-          if(buffer[1]==3{
+          if(buffer[1]==3){
             apuesta=100;
             
           }
@@ -472,14 +475,14 @@ error=1;
           if(buffer[1]==5){
             apuesta=-300;
           }
-          if(apuesta>jugador1->pot+bet1 ||  bet2!=apuesta{
+          if(apuesta>jugador1->pot+bet1 ||  bet2!=apuesta){
             error_bet(cliente1,buffer);
             
           }
           error=0;
       }
       if(apuesta==-1){
-        jugador2->pot+=(bet1+bet2)
+        jugador2->pot+=(bet1+bet2);
         continue;
       }
        jugador1->pot+=bet1;

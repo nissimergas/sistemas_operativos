@@ -29,12 +29,13 @@ void ret_bet(int sock,char*buffer){
 
 void error_bet(int sock,char*buffer){
     buffer[0]=16;
+    int i;
     for (i=1;i<258;i++){
       buffer[i]=0;
     }
     send(sock, buffer, strlen(buffer), 0);  
 }
-int manejar_bet(int sock,char*buffer, Player* jugador, int bet){
+/*int manejar_bet(int sock,char*buffer, Player* jugador, int bet){
   recv(sock, buffer, 258, 0);
   int apuesta;
   if(buffer[1]==1){
@@ -45,7 +46,7 @@ int manejar_bet(int sock,char*buffer, Player* jugador, int bet){
     apuesta=0;
     
   }
-  if(buffer[1]==3{
+  if(buffer[1]==3){
     apuesta=100;
     
   }
@@ -56,13 +57,13 @@ int manejar_bet(int sock,char*buffer, Player* jugador, int bet){
   if(buffer[1]==5){
     apuesta=-300;
   }
-  if(apuesta>jugador->pot || (apuesta<bet && apuesta!=-1 ){
+  if(apuesta>jugador->pot || (apuesta<bet && apuesta!=-1 )){
     error_bet(sock,buffer);
     manejar_bet(sock,buffer,  jugador);
   }
   jugador->pot-=apuesta;
   return apuesta;
-}
+}*/
 
 void get_bet(int sock,char*buffer){
     buffer[0]=14;
@@ -597,7 +598,7 @@ int casos_respuestas(int sock, char* buffer){
             break;
         case 14:
             printf("Apuesta\n" );
-            ret_bet(int sock,char*buffer);
+            ret_bet( sock,buffer);
             break;
         case 15:
             printf("bet:\n" );
@@ -606,7 +607,7 @@ int casos_respuestas(int sock, char* buffer){
             break;
         case 16:
             printf("Error bet\n" );
-            ret_bet(int sock,char*buffer);
+            ret_bet( sock,buffer);
             break;
         case 17:
             printf("Start round\n" );
