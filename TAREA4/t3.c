@@ -20,7 +20,7 @@ void ret_bet(int sock,char*buffer){
     if(res>5 || res<1){
       res=1;
     }
-    buffer[0]=res;
+    buffer[1]=res;
     for (i=1;i<258;i++){
       buffer[i]=0;
     }
