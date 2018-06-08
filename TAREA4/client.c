@@ -6,8 +6,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "t3.h"
+#include <unistd.h>
 
-#define PORT 4445
+#define PORT 4474
 
 
 int main(){
@@ -16,6 +17,7 @@ int main(){
 	char*buffer=( char*)calloc(258,1);
 	int clientSocket;
 	struct sockaddr_in serverAddr;
+	
 	
 
 	clientSocket = socket(PF_INET, SOCK_STREAM, 0);
@@ -30,6 +32,23 @@ int main(){
 	start_conection(clientSocket,buffer);
 	casos_respuestas(clientSocket, buffer);
     casos_respuestas(clientSocket, buffer);
+    //recivo respuesta oponente encontrado
+    casos_respuestas(clientSocket, buffer);
+
+    //recivo respuesta pot
+    sleep(1);
+    casos_respuestas(clientSocket, buffer);
+     //recivo  comienzo del juego
+    casos_respuestas(clientSocket, buffer);
+    int jugando=1;
+    while(jugando==1){
+    	jugando=casos_respuestas(clientSocket, buffer);
+
+  
+
+    }
+
+
 	
 	
 	//strcpy(buffer, "soy cliente1");
