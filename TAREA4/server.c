@@ -260,6 +260,10 @@ cliente2 = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
           }
           error=0;
       }
+      if(apuesta==-1){
+        jugador2->pot+=(bet1+bet2)
+        continue;
+      }
         jugador1->pot+=bet1;
         jugador1->pot-=apuesta;
         bet1=apuesta;
@@ -296,15 +300,23 @@ error=1;
           }
           error=0;
       }
+      if(apuesta==-1){
+        jugador1->pot+=(bet1+bet2)
+        continue;
+      }
        jugador2->pot+=bet2;
        jugador2->pot-=apuesta;
        bet2=apuesta;
 
 
       }
-
         ////////////////////////apuesta////////////////////////////////////
-        ////////////////////apuesta /////////////////////////////////////
+
+
+
+
+
+        
 
 
 
@@ -318,6 +330,164 @@ error=1;
         send_get_cards_to_change(cliente1,buffer,cartas1);
         
         send_new_cards(cliente1, buffer, cartas1, mazo, ocupado);
+
+
+         ////////////////////////apuesta////////////////////////////////////
+        int error=1;
+        while(error=1){
+          get_bet(cliente2,buffer);
+          recv(cliente2, buffer, 258, 0);
+          int apuesta;
+          if(buffer[1]==1){
+            apuesta=-1;
+
+          }
+          if(buffer[1]==2){
+            apuesta=0;
+            
+          }
+          if(buffer[1]==3{
+            apuesta=100;
+            
+          }
+          if(buffer[1]==4){
+            apuesta=200;
+            
+          }
+          if(buffer[1]==5){
+            apuesta=-300;
+          }
+          if(apuesta>jugador2->pot ){
+            error_bet(cliente2,buffer);
+            
+          }
+          error=0;
+      }
+      if(apuesta==-1){
+        continue;
+      }
+        jugador2->pot-=apuesta;
+        bet2=apuesta;
+
+      ////////////////////////apuesta j2////////////////////////////////////
+      get_bet(cliente1,buffer);
+      error=1;
+      while(error=1){
+          get_bet(cliente1,buffer);
+          recv(cliente1, buffer, 258, 0);
+          int apuesta;
+          if(buffer[1]==1){
+            apuesta=-1;
+
+          }
+          if(buffer[1]==2){
+            apuesta=0;
+            
+          }
+          if(buffer[1]==3{
+            apuesta=100;
+            
+          }
+          if(buffer[1]==4){
+            apuesta=200;
+            
+          }
+          if(buffer[1]==5){
+            apuesta=-300;
+          }
+          if(apuesta>jugador1->pot ||  bet2>apuesta){
+            error_bet(cliente1,buffer);
+            
+          }
+          error=0;
+      }
+      if(apuesta==-1){
+        jugador2->pot+=(bet1+bet2)
+        continue;
+      }
+       jugador1->pot-=apuesta;
+        bet1=apuesta;
+
+      if(bet1>bet2){
+        int error=1;
+        while(error=1){
+          get_bet(cliente2,buffer);
+          recv(cliente2, buffer, 258, 0);
+          int apuesta;
+          if(buffer[1]==1){
+            apuesta=-1;
+
+          }
+          if(buffer[1]==2){
+            apuesta=0;
+            
+          }
+          if(buffer[1]==3{
+            apuesta=100;
+            
+          }
+          if(buffer[1]==4){
+            apuesta=200;
+            
+          }
+          if(buffer[1]==5){
+            apuesta=-300;
+          }
+          if(apuesta>jugador2->pot+bet2||apuesta<bet1 ){
+            error_bet(cliente2,buffer);        
+          }
+          error=0;
+      }
+      if(apuesta==-1){
+        jugador1->pot+=(bet1+bet2)
+        continue;
+      }
+        jugador2->pot+=bet2;
+        jugador2->pot-=apuesta;
+        bet2=apuesta;
+ ////////////////////apuesta /////////////////////////////////////
+
+error=1;
+
+      while(error=1){
+          get_bet(cliente1,buffer);
+          recv(cliente1, buffer, 258, 0);
+          int apuesta;
+          if(buffer[1]==1){
+            apuesta=-1;
+
+          }
+          if(buffer[1]==2){
+            apuesta=0;
+            
+          }
+          if(buffer[1]==3{
+            apuesta=100;
+            
+          }
+          if(buffer[1]==4){
+            apuesta=200;
+            
+          }
+          if(buffer[1]==5){
+            apuesta=-300;
+          }
+          if(apuesta>jugador1->pot+bet1 ||  bet2!=apuesta{
+            error_bet(cliente1,buffer);
+            
+          }
+          error=0;
+      }
+      if(apuesta==-1){
+        jugador2->pot+=(bet1+bet2)
+        continue;
+      }
+       jugador1->pot+=bet1;
+       jugador1->pot-=apuesta;
+       bet1=apuesta;
+
+
+      }
 
       }
      
