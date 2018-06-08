@@ -194,11 +194,15 @@ void send_new_cards(int sock,char*buffer, char *cartas, char*mazo, char *ocupado
   printf("aca\n");
   recv(sock, buffer, 258, 0);
   printf("buffer:%i\n",buffer[1]);
+  int i;
+  for(i=0;i<5;i++){
+    printf("buf: %i %i \n",buffer[2*i+2],buffer[2*i+1+2]);
+  }
   if(buffer[0]==13){
     int nc=buffer[1]/2;
     int i=0;
     printf("_________\n");
-    for (i=0;i<nc/2;i++){
+    for (i=0;i<5;i++){
       
       if(buffer[i+2]!=0){
         printf("cambiando\n");
@@ -293,8 +297,8 @@ void return_cards_to_change(int sock, char*buffer){
         printf("?(1/si 2/no)");
         scanf("%d", &res);
         if (res==1){
-          buf[indice]=buffer[i];
-          buf[indice+1]=buffer[i+1];
+          buf[indice]=buffer[2*i+2];
+          buf[indice+1]=buffer[2*i+3];
           indice=indice+2;
           nc+=1;
         }
@@ -304,6 +308,9 @@ void return_cards_to_change(int sock, char*buffer){
           indice=indice+2;
           nc+=1;
         }
+  }
+  for(i=0;i<5;i++){
+    printf("buf: %i %i ",buf[2*i],buf[2*i+1]);
   }
 
   printf( "\n");
